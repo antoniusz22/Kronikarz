@@ -1,0 +1,2 @@
+# Kronikarz
+Projekt na IO 
