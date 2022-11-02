@@ -4,13 +4,17 @@ class Person {
         this.surname = surname;
         this.dateOfBirth = dateOfBirth;
         this.dateOfDeath = dateOfDeath;
-        this.age = Math.floor((Date.parse(dateOfDeath) - Date.parse(dateOfBirth)) / 31536000000, 0);
+        this.age = Math.floor((Date.parse(dateOfDeath) - Date.parse(dateOfBirth)) / 31536000000, 0); // Amount of miliseconds in year
         this.sex = sex;
         this.occupation = occupation;
         this.additionalInfo = additionalInfo;
     }
     
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    d3.select("h1").style('color', 'red');
+});
 
 const persons = [
     new Person("Antoni", "Zuber", new Date("September 17, 2001"), new Date(Date.now()), "M", "None", "Kocham Ruch"),
