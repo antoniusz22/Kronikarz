@@ -7,3 +7,20 @@ html {
   padding-top: 40px;
   padding-bottom: 40px;
 }
+
+.show_on_hover {
+  visibility: hidden;
+}
+
+.expand_on_hover:hover .show_on_hover {
+  visibility: visible;
+}
+
+.expand_on_hover:hover,
+.expand_on_hover:hover rect {
+  height: 400px;
+}
+
+.expand_on_hover:hover .name_surname {
+  visibility: hidden;
+}
