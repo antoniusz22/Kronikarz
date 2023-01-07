@@ -1,0 +1,34 @@
+.expand_on_hover:hover {
+    width: fit-content;
+    /* width: 250px; */
+    height: 400px;
+    /* block-size: fit-content; */
+    stroke: yellow;
+}
+
+.person {
+    width: 200px;
+    height: 220px;
+    border: 1pt black solid;
+    text-align: center;
+    padding-top: 10px;
+}
+
+.person img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.person div {
+    display: none;
+}
+
+.person:hover {
+    width: 250px;
+    height: 410px;
+}
+
+.person:hover div {
+    display: block;
+}
