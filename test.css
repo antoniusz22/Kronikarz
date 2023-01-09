@@ -7,11 +7,14 @@
 }
 
 .person {
+    position: absolute;
     width: 200px;
     height: 220px;
     border: 1pt black solid;
     text-align: center;
     padding-top: 10px;
+    border-radius: 5%;
+    box-shadow: 5px 5px 30px cyan;
 }
 
 .person img {

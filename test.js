@@ -73,42 +73,76 @@ const persons = [
   ),
 ];
 
-const canvas = d3.select(".person");
-
 const x = 200;
 const y = 200;
 
-let div = document.querySelector(".person");
+// const canvas = d3.select(".person");
 
-canvas
-  .append("img")
-  .attr("src", "test.jpg")
-  .attr("width", "150px")
-  .attr("height", "180px");
+// let person = document.querySelector(".person");
 
-div.innerHTML += `${persons[0].name} ${persons[0].surname}`;
-let innerDiv = document.createElement("div");
-innerDiv.innerHTML += `Wiek: ${persons[0].age} <br />`;
-innerDiv.innerHTML += `Data urodzenia: ${persons[0].dateOfBirth.getDate()}/${
-  persons[0].dateOfBirth.getMonth() + 1 < 10
-    ? "0" + (persons[0].dateOfBirth.getMonth() + 1)
-    : persons[0].dateOfBirth.getMonth() + 1
-}/${persons[0].dateOfBirth.getFullYear()} <br />`;
-innerDiv.innerHTML +=
-  persons[0].dateOfDeath.setHours(0, 0, 0, 0) ===
-  new Date().setHours(0, 0, 0, 0)
-    ? `Data śmierci: żyje <br />`
-    : `Data śmierci: ${persons[0].dateOfDeath.getDate()}/${
-        persons[0].dateOfDeath.getMonth() + 1 < 10
-          ? "0" + (persons[0].dateOfDeath.getMonth() + 1)
-          : persons[0].dateOfDeath.getMonth() + 1
-      }/${persons[0].dateOfDeath.getFullYear()} <br />`;
-innerDiv.innerHTML += `Miejsce urodzenia: ${persons[0].placeOfBirth} <br />`;
-innerDiv.innerHTML += `Kraj urodzenia: ${persons[0].countryOfBirth} <br />`;
-innerDiv.innerHTML += `Płeć: ${persons[0].sex} <br />`;
-innerDiv.innerHTML += `Zawód: ${persons[0].occupation} <br />`;
-innerDiv.innerHTML += `${persons[0].additionalInfo}`;
-div.appendChild(innerDiv);
+// canvas
+//   .append("img")
+//   .attr("src", "test.jpg")
+//   .attr("width", "150px")
+//   .attr("height", "180px");
+
+for (const person of persons) {
+  let personDiv = document.createElement("div");
+  personDiv.classList.add("person");
+
+  let img = document.createElement("img");
+  img.src = "test.jpg";
+  img.style.width = "150px";
+  img.style.height = "180px";
+  personDiv.appendChild(img);
+
+  personDiv.innerHTML += `${person.name} ${person.surname}`;
+  let innerDiv = document.createElement("div");
+  innerDiv.innerHTML += `Wiek: ${person.age} <br />`;
+  innerDiv.innerHTML += `Data urodzenia: ${person.dateOfBirth.getDate()}/${
+    person.dateOfBirth.getMonth() + 1 < 10
+      ? "0" + (person.dateOfBirth.getMonth() + 1)
+      : person.dateOfBirth.getMonth() + 1
+  }/${person.dateOfBirth.getFullYear()} <br />`;
+  innerDiv.innerHTML +=
+    person.dateOfDeath.setHours(0, 0, 0, 0) ===
+    new Date().setHours(0, 0, 0, 0)
+      ? `Data śmierci: żyje <br />`
+      : `Data śmierci: ${person.dateOfDeath.getDate()}/${
+          person.dateOfDeath.getMonth() + 1 < 10
+            ? "0" + (person.dateOfDeath.getMonth() + 1)
+            : person.dateOfDeath.getMonth() + 1
+        }/${person.dateOfDeath.getFullYear()} <br />`;
+  innerDiv.innerHTML += `Miejsce urodzenia: ${person.placeOfBirth} <br />`;
+  innerDiv.innerHTML += `Kraj urodzenia: ${person.countryOfBirth} <br />`;
+  innerDiv.innerHTML += `Płeć: ${person.sex} <br />`;
+  innerDiv.innerHTML += `Zawód: ${person.occupation} <br />`;
+  innerDiv.innerHTML += `${person.additionalInfo}`;
+  personDiv.appendChild(innerDiv);
+
+  const image = personDiv.querySelector("img");
+  image.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+  });
+
+  const drag = (e) => {
+    const getStyle = window.getComputedStyle(personDiv);
+    const left = parseInt(getStyle.left);
+    const top = parseInt(getStyle.top);
+    personDiv.style.top = `${top + e.movementY}px`;
+    personDiv.style.left = `${left + e.movementX}px`;
+  };
+
+  personDiv.addEventListener("mousedown", () => {
+    window.addEventListener("mousemove", drag);
+  });
+
+  window.addEventListener("mouseup", () => {
+    window.removeEventListener("mousemove", drag);
+  });
+
+  document.body.appendChild(personDiv);
+}
 
 // canvas
 //   .html(`${persons[0].name} ${persons[0].surname}`)
