@@ -73,8 +73,20 @@ const persons = [
   ),
 ];
 
-const x = 200;
-const y = 200;
+const modal = document.querySelector("#addUserForm");
+const openModal = document.querySelector(".openAddUserForm-btn");
+const closeModal = document.querySelector(".closeAddUserForm-btn");
+
+openModal.addEventListener("click", () => {
+  modal.showModal();
+});
+
+closeModal.addEventListener("click", () => {
+  modal.close();
+});
+
+// const x = 200;
+// const y = 200;
 
 // const canvas = d3.select(".person");
 
@@ -105,8 +117,7 @@ for (const person of persons) {
       : person.dateOfBirth.getMonth() + 1
   }/${person.dateOfBirth.getFullYear()} <br />`;
   innerDiv.innerHTML +=
-    person.dateOfDeath.setHours(0, 0, 0, 0) ===
-    new Date().setHours(0, 0, 0, 0)
+    person.dateOfDeath.setHours(0, 0, 0, 0) === new Date().setHours(0, 0, 0, 0)
       ? `Data śmierci: żyje <br />`
       : `Data śmierci: ${person.dateOfDeath.getDate()}/${
           person.dateOfDeath.getMonth() + 1 < 10

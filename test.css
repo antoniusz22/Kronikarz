@@ -1,37 +1,63 @@
+/* Rozszerzanie wizytówki po najechaniu */
 .expand_on_hover:hover {
-    width: fit-content;
-    /* width: 250px; */
-    height: 400px;
-    /* block-size: fit-content; */
-    stroke: yellow;
+  width: fit-content;
+  /* width: 250px; */
+  height: 400px;
+  /* block-size: fit-content; */
+  stroke: yellow;
 }
 
+/* Wygląd wizytówki osoby */
 .person {
-    position: absolute;
-    width: 200px;
-    height: 220px;
-    border: 1pt black solid;
-    text-align: center;
-    padding-top: 10px;
-    border-radius: 5%;
-    box-shadow: 5px 5px 30px cyan;
+  position: absolute;
+  width: 200px;
+  height: 220px;
+  border: 1pt black solid;
+  text-align: center;
+  padding-top: 10px;
+  border-radius: 5%;
+  box-shadow: 5px 5px 30px cyan;
 }
 
 .person img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .person div {
-    display: none;
+  display: none;
 }
 
 .person:hover {
-    width: 250px;
-    height: 410px;
+  width: 250px;
+  height: 410px;
 }
 
 .person:hover div {
-    display: block;
+  display: block;
+}
+
+#addUserForm {
+    width: 50vw;
+}
+
+#addUserForm::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+#addUserForm .closeAddUserForm-btn {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 30px;
+  height: 30px;
+  background-color: black;
+  color: white;
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 30px;
+  text-align: center;
+  vertical-align: middle;
+  border-radius: 50%;
 }
