@@ -10,11 +10,12 @@
   <body>
     <button id="togglePan">Przełącz przesuwanie</button>
     <button id="resetZoom">Zresetuj zoom</button>
-    <button id="getCoords">Linia</button>
     <button class="btn btn-primary openAddUserForm-btn">
       Dodaj członka rodziny
     </button>
-    <canvas id="canvas"></canvas>
+    <div class="fabric-canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
 
     <dialog id="addUserForm">
       <button class="closeAddUserForm-btn">&times;</button>
@@ -23,11 +24,11 @@
           <h2>Dodaj osobę</h2>
         </div>
         <div class="form-group">
-          <label for="firstName">Imię</label>
+          <label for="name">Imię</label>
           <input
             type="text"
             class="form-control"
-            id="firstName"
+            id="name"
             placeholder="Imię"
           />
         </div>

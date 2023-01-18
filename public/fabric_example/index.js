@@ -1,10 +1,66 @@
 import { persons } from "./test.js";
 
+fabric.LineArrow = fabric.util.createClass(fabric.Line, {
+  type: "lineArrow",
+
+  initialize: function (element, options) {
+    options || (options = {});
+    this.callSuper("initialize", element, options);
+  },
+
+  toObject: function () {
+    return fabric.util.object.extend(this.callSuper("toObject"));
+  },
+
+  _render: function (ctx) {
+    this.callSuper("_render", ctx);
+
+    // do not render if width/height are zeros or object is not visible
+    if (this.width === 0 || this.height === 0 || !this.visible) return;
+
+    ctx.save();
+
+    var xDiff = this.x2 - this.x1;
+    var yDiff = this.y2 - this.y1;
+    var angle = Math.atan2(yDiff, xDiff);
+    ctx.translate((this.x2 - this.x1) / 2, (this.y2 - this.y1) / 2);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    //move 10px in front of line to start the arrow so it does not have the square line end showing in front (0,0)
+    ctx.moveTo(10, 0);
+    ctx.lineTo(-20, 15);
+    ctx.lineTo(-20, -15);
+    ctx.closePath();
+    ctx.fillStyle = this.stroke;
+    ctx.fill();
+
+    ctx.restore();
+  },
+});
+
 const initCanvas = (id) => {
   return new fabric.Canvas(id, {
     width: document.body.clientWidth * 0.8,
     height: document.body.clientHeight * 0.8,
+    selection: false,
   });
+};
+
+const resizeCanvas = () => {
+  const outerCanvasContainer = document.querySelector(".fabric-canvas-wrapper");
+
+  const ratio = canvas.getWidth() / canvas.getHeight();
+  const containerWidth = outerCanvasContainer.clientWidth * 0.8;
+
+  const scale =
+    (containerWidth / canvas.getWidth()) *
+    (window.innerWidth / window.innerHeight);
+  // const zoom = canvas.getZoom() * scale;
+  canvas.setDimensions({
+    width: containerWidth,
+    height: containerWidth / ratio,
+  });
+  canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 };
 
 const togglePan = () => {
@@ -106,25 +162,60 @@ const createPerson = (canvas, person, i) => {
     canvas.renderAll();
     group.on("moving", (opt) => {
       let id = canvas.getActiveObject().id;
-      let linesParent = [];
+      // Linie dzieci
       let linesChild = [];
       for (let object of canvas.getObjects()) {
-        if (new RegExp(`${id}:`).test(object.id)) {
-          linesParent.push(object);
-        } else if (new RegExp(`:${id}`).test(object.id)) {
+        if (new RegExp(`:${id}`).test(object.id)) {
           linesChild.push(object);
         }
-      }
-      for (let line of linesParent) {
-        line.set({
-          x1: line.x1 + opt.e.movementX / canvas.getZoom(),
-          y1: line.y1 + opt.e.movementY / canvas.getZoom(),
-        });
       }
       for (let line of linesChild) {
         line.set({
           x2: line.x2 + opt.e.movementX / canvas.getZoom(),
           y2: line.y2 + opt.e.movementY / canvas.getZoom(),
+        });
+      }
+
+      // Linie małżeństwa
+      let lineSpouse1 = [];
+      let lineSpouse2 = [];
+      let lineChildren = [];
+      for (let object of canvas.getObjects()) {
+        if (
+          new RegExp(`${id}/`).test(object.id) &&
+          !new RegExp(`:`).test(object.id)
+        ) {
+          lineSpouse1.push(object);
+        } else if (
+          new RegExp(`/${id}`).test(object.id) &&
+          !new RegExp(`:`).test(object.id)
+        ) {
+          lineSpouse2.push(object);
+        } else if (
+          (new RegExp(`${id}/`).test(object.id) ||
+            new RegExp(`/${id}`).test(object.id)) &&
+          new RegExp(`:`).test(object.id)
+        ) {
+          lineChildren.push(object);
+        }
+      }
+      for (let line of lineSpouse1) {
+        line.set({
+          x1: line.x1 + opt.e.movementX / canvas.getZoom(),
+          y1: line.y1 + opt.e.movementY / canvas.getZoom(),
+        });
+      }
+      for (let line of lineSpouse2) {
+        line.set({
+          x2: line.x2 + opt.e.movementX / canvas.getZoom(),
+          y2: line.y2 + opt.e.movementY / canvas.getZoom(),
+        });
+      }
+      for (let line of lineChildren) {
+        let parentsLine = getObject(`${line.id.split(":")[0]}`);
+        line.set({
+          x1: parentsLine.left + parentsLine.width / 2,
+          y1: parentsLine.top + parentsLine.height / 2,
         });
       }
       canvas.renderAll();
@@ -137,11 +228,11 @@ const createPerson = (canvas, person, i) => {
   });
 };
 
-const makeLineBetweenChildAndParent = (parent, child) => {
-  let line = new fabric.Line(
+const makeLineBetweenChildAndParent = (parentsLine, child) => {
+  let line = new fabric.LineArrow(
     [
-      parent.left + parent.width / 2,
-      parent.top + parent.height,
+      parentsLine.left + parentsLine.width / 2,
+      parentsLine.top + parentsLine.height / 2,
       child.left + child.width / 2,
       child.top,
     ],
@@ -149,7 +240,7 @@ const makeLineBetweenChildAndParent = (parent, child) => {
       fill: "red",
       stroke: "red",
       strokeWidth: 2,
-      id: `${parent.id}:${child.id}`,
+      id: `${parentsLine.id}:${child.id}`,
       selectable: false,
     }
   );
@@ -170,7 +261,7 @@ const makeLineBetweenSpouses = (husband, wife) => {
       fill: "red",
       stroke: "red",
       strokeWidth: 2,
-      id: `${husband.id}:${wife.id}`,
+      id: `${husband.id}/${wife.id}`,
       selectable: false,
     }
   );
@@ -208,6 +299,54 @@ const createDialog = (person) => {
   document.body.appendChild(dialog);
 };
 
+const createDialogFromJSON = () => {
+  let xhttp = new XMLHttpRequest();
+  xhttp.open("GET", "../show-user/1", false);
+  xhttp.send();
+
+  let personJSON = xhttp.responseText;
+  const person = JSON.parse(personJSON);
+
+  let personBirthday = new Date(person.birthday);
+  let personDeath = new Date(person.death);
+  // console.log(birthday, death);
+
+  const dialog = document.createElement("dialog");
+  let innerDiv = document.createElement("div");
+  innerDiv.innerHTML += `Imię: ${person.first_name} <br />`;
+  innerDiv.innerHTML += `Nazwisko: ${person.last_name} <br />`;
+  innerDiv.innerHTML += `Wiek: ${
+    person.death === undefined
+      ? Math.floor((Date.now() - Date.parse(person.birthday)) / 31536000000, 0)
+      : Math.floor(
+          (Date.parse(person.death) - Date.parse(person.birthday)) /
+            31536000000,
+          0
+        )
+  } <br />`;
+  innerDiv.innerHTML += `Data urodzenia: ${personBirthday.getDate()}/${
+    personBirthday.getMonth() + 1 < 10
+      ? "0" + (personBirthday.getMonth() + 1)
+      : personBirthday.getMonth() + 1
+  }/${personBirthday.getFullYear()} <br />`;
+  innerDiv.innerHTML +=
+    person.death === undefined
+      ? ``
+      : `Data śmierci: ${personDeath.getDate()}/${
+          personDeath.getMonth() + 1 < 10
+            ? "0" + (personDeath.getMonth() + 1)
+            : personDeath.getMonth() + 1
+        }/${personDeath.getFullYear()} <br />`;
+  innerDiv.innerHTML += `Miejsce urodzenia: ${person.birthplace} <br />`;
+  innerDiv.innerHTML += `Kraj urodzenia: ${person.country_of_birth} <br />`;
+  innerDiv.innerHTML += `Płeć: ${person.sex} <br />`;
+  innerDiv.innerHTML += `Zawód: ${person.profession} <br />`;
+  innerDiv.innerHTML += `${person.additional_information}`;
+  dialog.setAttribute("id", `${person.first_name}_${person.last_name}_dialog`);
+  dialog.appendChild(innerDiv);
+  document.body.appendChild(dialog);
+};
+
 const getObject = (id) => {
   for (let object of canvas.getObjects()) {
     if (object.id === id) return object;
@@ -228,21 +367,7 @@ togglePanButton.addEventListener("mousedown", togglePan);
 const resetZoomButton = document.querySelector("#resetZoom");
 resetZoomButton.addEventListener("mousedown", () => {
   canvas.zoomToPoint(new fabric.Point(0, 0), 1);
-});
-
-const getCoords = document.querySelector("#getCoords");
-getCoords.addEventListener("mousedown", () => {
-  let o1 = getObject("Tomasz_Barnaś");
-  let o2 = getObject("Antoni_Zuber");
-  let o3 = getObject("Rafał_Ochorok");
-  console.log(o2.children);
-  makeLineBetweenSpouses(o2, getObject(o2.spouse));
-  for (let child of o2.children) {
-    console.log(child);
-    makeLineBetweenChildAndParent(o2, getObject(child));
-    makeLineBetweenChildAndParent(getObject(o2.spouse), getObject(child));
-  }
-  canvas.renderAll();
+  createDialogFromJSON();
 });
 
 makeCanvasInteractive(canvas);
@@ -259,15 +384,16 @@ const openModal = document.querySelector(".openAddUserForm-btn");
 const closeModal = document.querySelector(".closeAddUserForm-btn");
 
 openModal.addEventListener("click", () => {
-  var xhttp = new XMLHttpRequest();
+  let xhttp = new XMLHttpRequest();
   xhttp.open("GET", "../new-user", false);
   xhttp.send();
 
   document.getElementById("addUserForm").innerHTML = xhttp.responseText;
-  document.querySelector('form[name="user"]').setAttribute('action', '../new-user');
+  document
+    .querySelector('form[name="user"]')
+    .setAttribute("action", "../new-user");
 
   modal.showModal();
-
 });
 
 closeModal.addEventListener("click", () => {
@@ -280,14 +406,16 @@ window.addEventListener("mousemove", () => {
     let o1 = getObject("Tomasz_Barnaś");
     let o2 = getObject("Antoni_Zuber");
     let o3 = getObject("Rafał_Ochorok");
-    console.log(o2.children);
     makeLineBetweenSpouses(o2, getObject(o2.spouse));
     for (let child of o2.children) {
-      console.log(child);
-      makeLineBetweenChildAndParent(o2, getObject(child));
-      makeLineBetweenChildAndParent(getObject(o2.spouse), getObject(child));
+      makeLineBetweenChildAndParent(
+        getObject(`${o2.id}/${o2.spouse}`),
+        getObject(child)
+      );
     }
     canvas.renderAll();
   }
   cancel = false;
 });
+
+window.addEventListener("resize", resizeCanvas);
