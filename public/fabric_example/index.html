@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kronikarz</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <button id="togglePan">Przełącz przesuwanie</button>
+    <button id="resetZoom">Zresetuj zoom</button>
+    <button id="getCoords">Linia</button>
+    <button class="btn btn-primary openAddUserForm-btn">
+      Dodaj członka rodziny
+    </button>
+    <canvas id="canvas"></canvas>
+
+    <dialog id="addUserForm">
+      <button class="closeAddUserForm-btn">&times;</button>
+      <form method="dialog">
+        <div class="form-group text-center">
+          <h2>Dodaj osobę</h2>
+        </div>
+        <div class="form-group">
+          <label for="firstName">Imię</label>
+          <input
+            type="text"
+            class="form-control"
+            id="firstName"
+            placeholder="Imię"
+          />
+        </div>
+        <div class="form-group">
+          <label for="surname">Nazwisko</label>
+          <input
+            type="text"
+            class="form-control"
+            id="surname"
+            placeholder="Nazwisko"
+          />
+        </div>
+        <div class="form-group">
+          <label for="dateOfBirth">Data urodzenia</label>
+          <input type="date" class="form-control" id="dateOfBirth" />
+        </div>
+        <div class="form-group">
+          <label for="dateOfDeath">Data śmierci</label>
+          <input type="date" class="form-control" id="dateOfDeath" />
+        </div>
+        <div class="form-group">
+          <label for="placeOfBirth">Miejsce urodzenia</label>
+          <input
+            type="text"
+            class="form-control"
+            id="placeOfBirth"
+            placeholder="Miejsce urodzenia"
+          />
+        </div>
+        <div class="form-group">
+          <label for="countryOfBirth">Kraj urodzenia</label>
+          <input
+            type="text"
+            class="form-control"
+            id="countryOfBirth"
+            placeholder="Kraj urodzenia"
+          />
+        </div>
+        <div class="form-group">
+          <label for="sex">Płeć</label>
+          <select class="form-control" id="sexes">
+            <option>Mężczyzna</option>
+            <option>Kobieta</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="occupation">Zawód</label>
+          <input
+            type="text"
+            class="form-control"
+            id="occupation"
+            placeholder="Zawód"
+          />
+        </div>
+        <div class="form-group">
+          <label for="additionalInfo">Dodatkowe informacje</label>
+          <textarea
+            class="form-control"
+            id="additionalInfo"
+            rows="3"
+            placeholder="Dodatkowe informacje"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <input
+            name="add"
+            type="submit"
+            id="add"
+            value="Dodaj osobę"
+            class="btn btn-primary"
+          />
+        </div>
+      </form>
+    </dialog>
+    <script src="./lib/fabric.min.js"></script>
+    <!-- <script src="https://unpkg.com/fabric@5.3.0/dist/fabric.min.js"></script> -->
+    <script src="test.js" type="module"></script>
+    <script src="index.js" type="module"></script>
+  </body>
+</html>
