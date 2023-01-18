@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
@@ -15,13 +16,14 @@ use Twig\Environment;
 class UserController extends AbstractController
 {
     public function __construct(
-        private readonly ManagerRegistry $registry,
+        private readonly ManagerRegistry     $registry,
+        private readonly SerializerInterface $serializer
     )
     {
     }
 
     #[Route('/new-user')]
-    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
     {
         $user = new User();
 
@@ -45,16 +47,26 @@ class UserController extends AbstractController
     public function show(Request $request, User $relation): Response
     {
         $response = new Response('', Response::HTTP_OK);
-
+//
         $em = $this->registry->getManager();
         $form = $this->createForm(UserType::class, $relation);
+//
+//        $form->handleRequest($request);
+//
+//
+//        return $this->render('user/show.html.twig', [
+//            'user_form' => $form->createView()
+//        ], $response);
 
-        $form->handleRequest($request);
+//        $serializer = $this->container->get('jms_serializer');
 
+//        dd($form->getNormData());
 
-        return $this->render('user/show.html.twig', [
-            'user_form' => $form->createView()
-        ], $response);
+        // JSON Response try
+
+        $reports = $this->serializer->serialize($form->getNormData(), 'json');
+
+        return new Response($reports);
     }
 
     #[Route('/edit-user/{id}/', 'edit-user', ['id' => '\d+'])] // todo: secure the @ParamConverter
