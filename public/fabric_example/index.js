@@ -384,14 +384,12 @@ const openModal = document.querySelector(".openAddUserForm-btn");
 const closeModal = document.querySelector(".closeAddUserForm-btn");
 
 openModal.addEventListener("click", () => {
-  let xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "../new-user", false);
-  xhttp.send();
-
-  document.getElementById("addUserForm").innerHTML = xhttp.responseText;
-  document
-    .querySelector('form[name="user"]')
-    .setAttribute("action", "../new-user");
+    $.ajax({
+      method: 'POST',
+      url: '../new-user'
+    }).done(function (data) {
+      $('#addUserForm').html(data);
+    });
 
   modal.showModal();
 });
