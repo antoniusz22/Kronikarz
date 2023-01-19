@@ -1,5 +1,3 @@
-{% extends 'base.html.twig' %}
-
 {% block body %}
 
     <h1>User</h1>
@@ -7,3 +5,18 @@
     {{ form(user_form) }}
 
 {% endblock %}
+<script>
+    $(() => {
+        $("form[name='user']").on('submit', (e) => {
+            const formSerialize = $('form[name="user"]').serialize();
+            $.post("../new-user", formSerialize, function (data, statusText, xhr) {
+                $("dialog[id='addUserForm']").html(data);
+            }).fail(function (data) {
+                // todo: handle error
+                $("dialog[id='addUserForm']").html(data);
+            });
+            e.preventDefault();
+            return false;
+        });
+    });
+</script>

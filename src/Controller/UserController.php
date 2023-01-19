@@ -35,7 +35,7 @@ class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return new Response('User created');
+            return new Response('User created.');
         }
 
         return new Response($twig->render('user/show.html.twig', [
