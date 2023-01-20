@@ -1,6 +1,6 @@
 {% block body %}
 
-    <h1>User</h1>
+    <h1>{{ title }}</h1>
 
     {{ form(user_form) }}
 
@@ -9,9 +9,8 @@
     $(() => {
         $("form[name='user']").on('submit', (e) => {
             const formSerialize = $('form[name="user"]').serialize();
-            $.post("../new-user", formSerialize, function (data, statusText, xhr) {
-                $("dialog[id='addUserForm']").html(data.content); // Id usera jest w data.user_id
-                localStorage.setItem("user_id", data.user_id);
+            $.post("..{{ app.request.pathinfo }}", formSerialize, function (data, statusText, xhr) {
+                $("dialog[id='addUserForm']").html(data.content);
             }).fail(function (data) {
                 $("dialog[id='addUserForm']").html(data);
             });

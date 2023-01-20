@@ -43,6 +43,7 @@ class UserController extends AbstractController
         }
 
         return new Response($twig->render('user/show.html.twig', [
+            'title' => 'Nowy użytkownik',
             'user_form' => $form->createView()
         ]));
     }
@@ -87,12 +88,16 @@ class UserController extends AbstractController
             if ($form->isValid()) {
                 $em->persist($relation);
                 $em->flush();
+                return new JsonResponse([
+                    'content' => 'Zaktualizowano dane użytkownika.'
+                ]);
             } else {
                 $response = new Response('', Response::HTTP_BAD_REQUEST);
             }
         }
 
         return $this->render('user/show.html.twig', [
+            'title' => 'Edycja użytkownika',
             'user_form' => $form->createView()
         ], $response);
     }

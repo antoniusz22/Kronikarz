@@ -354,21 +354,18 @@ const createDialogFromJSON = (user_id) => {
     editPersonBtn.innerHTML += "Edytuj osobę";
     dialog.appendChild(editPersonBtn);
     document.body.appendChild(dialog);
-    editPersonBtn.addEventListener("click", editPerson(user_id));
+    editPersonBtn.addEventListener("click", () => editPerson(user_id));
   });
 };
 
 const editPerson = (user_id) => {
-  console.log("Siema");
-  const dialog = document.createElement("dialog");
   $.ajax({
-    method: "POST",
+    method: "GET",
     url: `../edit-user/${user_id}`,
   }).done((data) => {
-    dialog.html(data);
+    $("#v_v_dialog").html(data);
+    $("#v_v_dialog").show();
   });
-  document.body.appendChild(dialog);
-  dialog.showModal();
 };
 
 const useForm = () => {
