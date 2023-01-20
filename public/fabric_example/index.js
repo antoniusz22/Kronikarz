@@ -349,11 +349,30 @@ const createDialogFromJSON = (user_id) => {
       `${person.first_name}_${person.last_name}_dialog`
     );
     dialog.appendChild(innerDiv);
+    const editPersonBtn = document.createElement("button");
+    editPersonBtn.setAttribute("id", "editPersonBtn");
+    editPersonBtn.innerHTML += "Edytuj osobę";
+    dialog.appendChild(editPersonBtn);
     document.body.appendChild(dialog);
+    editPersonBtn.addEventListener("click", editPerson(user_id));
   });
 };
 
+const editPerson = (user_id) => {
+  console.log("Siema");
+  const dialog = document.createElement("dialog");
+  $.ajax({
+    method: "POST",
+    url: `../edit-user/${user_id}`,
+  }).done((data) => {
+    dialog.html(data);
+  });
+  document.body.appendChild(dialog);
+  dialog.showModal();
+};
+
 const useForm = () => {
+  const modal = document.querySelector("#addUserForm");
   $.ajax({
     method: "POST",
     url: "../new-user",
@@ -428,7 +447,6 @@ for (const [index, person] of persons.entries()) {
 
 canvas.renderAll();
 
-const modal = document.querySelector("#addUserForm");
 const openModal = document.querySelector(".openAddUserForm-btn");
 const closeModal = document.querySelector(".closeAddUserForm-btn");
 
