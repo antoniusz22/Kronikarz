@@ -11,6 +11,7 @@
             const formSerialize = $('form[name="user"]').serialize();
             $.post("../new-user", formSerialize, function (data, statusText, xhr) {
                 $("dialog[id='addUserForm']").html(data.content); // Id usera jest w data.user_id
+                localStorage.setItem("user_id", data.user_id);
             }).fail(function (data) {
                 $("dialog[id='addUserForm']").html(data);
             });

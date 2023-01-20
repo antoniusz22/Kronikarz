@@ -1,4 +1,4 @@
-import { persons } from "./test.js";
+import { Person, persons } from "./test.js";
 
 fabric.LineArrow = fabric.util.createClass(fabric.Line, {
   type: "lineArrow",
@@ -299,52 +299,101 @@ const createDialog = (person) => {
   document.body.appendChild(dialog);
 };
 
-const createDialogFromJSON = () => {
-  let xhttp = new XMLHttpRequest();
-  xhttp.open("GET", "../show-user/1", false);
-  xhttp.send();
+const createDialogFromJSON = (user_id) => {
+  $.ajax({
+    method: "GET",
+    url: `../show-user/${user_id}`,
+  }).done((data) => {
+    const person = JSON.parse(data);
 
-  let personJSON = xhttp.responseText;
-  const person = JSON.parse(personJSON);
+    let personBirthday = new Date(person.birthday);
+    let personDeath = new Date(person.death);
 
-  let personBirthday = new Date(person.birthday);
-  let personDeath = new Date(person.death);
-  // console.log(birthday, death);
+    const dialog = document.createElement("dialog");
+    let innerDiv = document.createElement("div");
+    innerDiv.innerHTML += `ID: ${person.id} <br />`;
+    innerDiv.innerHTML += `Imię: ${person.first_name} <br />`;
+    innerDiv.innerHTML += `Nazwisko: ${person.last_name} <br />`;
+    innerDiv.innerHTML += `Wiek: ${
+      person.death === undefined
+        ? Math.floor(
+            (Date.now() - Date.parse(person.birthday)) / 31536000000,
+            0
+          )
+        : Math.floor(
+            (Date.parse(person.death) - Date.parse(person.birthday)) /
+              31536000000,
+            0
+          )
+    } <br />`;
+    innerDiv.innerHTML += `Data urodzenia: ${personBirthday.getDate()}/${
+      personBirthday.getMonth() + 1 < 10
+        ? "0" + (personBirthday.getMonth() + 1)
+        : personBirthday.getMonth() + 1
+    }/${personBirthday.getFullYear()} <br />`;
+    innerDiv.innerHTML +=
+      person.death === undefined
+        ? ``
+        : `Data śmierci: ${personDeath.getDate()}/${
+            personDeath.getMonth() + 1 < 10
+              ? "0" + (personDeath.getMonth() + 1)
+              : personDeath.getMonth() + 1
+          }/${personDeath.getFullYear()} <br />`;
+    innerDiv.innerHTML += `Miejsce urodzenia: ${person.birthplace} <br />`;
+    innerDiv.innerHTML += `Kraj urodzenia: ${person.country_of_birth} <br />`;
+    innerDiv.innerHTML += `Płeć: ${person.sex} <br />`;
+    innerDiv.innerHTML += `Zawód: ${person.profession} <br />`;
+    innerDiv.innerHTML += `${person.additional_information}`;
+    dialog.setAttribute(
+      "id",
+      `${person.first_name}_${person.last_name}_dialog`
+    );
+    dialog.appendChild(innerDiv);
+    document.body.appendChild(dialog);
+  });
+};
 
-  const dialog = document.createElement("dialog");
-  let innerDiv = document.createElement("div");
-  innerDiv.innerHTML += `Imię: ${person.first_name} <br />`;
-  innerDiv.innerHTML += `Nazwisko: ${person.last_name} <br />`;
-  innerDiv.innerHTML += `Wiek: ${
-    person.death === undefined
-      ? Math.floor((Date.now() - Date.parse(person.birthday)) / 31536000000, 0)
-      : Math.floor(
-          (Date.parse(person.death) - Date.parse(person.birthday)) /
-            31536000000,
-          0
-        )
-  } <br />`;
-  innerDiv.innerHTML += `Data urodzenia: ${personBirthday.getDate()}/${
-    personBirthday.getMonth() + 1 < 10
-      ? "0" + (personBirthday.getMonth() + 1)
-      : personBirthday.getMonth() + 1
-  }/${personBirthday.getFullYear()} <br />`;
-  innerDiv.innerHTML +=
-    person.death === undefined
-      ? ``
-      : `Data śmierci: ${personDeath.getDate()}/${
-          personDeath.getMonth() + 1 < 10
-            ? "0" + (personDeath.getMonth() + 1)
-            : personDeath.getMonth() + 1
-        }/${personDeath.getFullYear()} <br />`;
-  innerDiv.innerHTML += `Miejsce urodzenia: ${person.birthplace} <br />`;
-  innerDiv.innerHTML += `Kraj urodzenia: ${person.country_of_birth} <br />`;
-  innerDiv.innerHTML += `Płeć: ${person.sex} <br />`;
-  innerDiv.innerHTML += `Zawód: ${person.profession} <br />`;
-  innerDiv.innerHTML += `${person.additional_information}`;
-  dialog.setAttribute("id", `${person.first_name}_${person.last_name}_dialog`);
-  dialog.appendChild(innerDiv);
-  document.body.appendChild(dialog);
+const useForm = () => {
+  $.ajax({
+    method: "POST",
+    url: "../new-user",
+  })
+    .done((data) => {
+      $("#addUserForm").html(data);
+    })
+    .done((data) => {
+      const userSubmitButton = document.querySelector("#user_Submit");
+      console.log(userSubmitButton);
+      userSubmitButton.addEventListener("click", () => {
+        const user_id = localStorage.getItem("user_id");
+        $.ajax({
+          method: "POST",
+          url: `../show-user/${user_id}`,
+        }).done((data) => {
+          const personJSON = JSON.parse(data);
+          const person = new Person(
+            personJSON.first_name,
+            personJSON.last_name,
+            personJSON.birthday,
+            personJSON.death,
+            undefined,
+            personJSON.birthplace,
+            personJSON.country_of_birth,
+            personJSON.sex,
+            personJSON.profession,
+            personJSON.additional_information,
+            undefined,
+            undefined
+          );
+          console.log(person);
+          createPerson(canvas, person, 0);
+          createDialogFromJSON(user_id);
+        });
+        console.log(localStorage.getItem("user_id"));
+      });
+    });
+
+  modal.showModal();
 };
 
 const getObject = (id) => {
@@ -383,16 +432,7 @@ const modal = document.querySelector("#addUserForm");
 const openModal = document.querySelector(".openAddUserForm-btn");
 const closeModal = document.querySelector(".closeAddUserForm-btn");
 
-openModal.addEventListener("click", () => {
-    $.ajax({
-      method: 'POST',
-      url: '../new-user'
-    }).done(function (data) {
-      $('#addUserForm').html(data);
-    });
-
-  modal.showModal();
-});
+openModal.addEventListener("click", useForm);
 
 closeModal.addEventListener("click", () => {
   modal.close();
