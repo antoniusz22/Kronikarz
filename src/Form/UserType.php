@@ -3,7 +3,9 @@
 namespace App\Form;
 
 use App\Entity\User;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -29,7 +31,12 @@ class UserType extends AbstractType
             ])
             ->add('birthplace')
             ->add('country_of_birth')
-            ->add('sex')
+            ->add('sex', ChoiceType::class, [
+                'choices' => [
+                    'Mężczyzna' => 0,
+                    'Kobieta' => 1
+                ]
+            ])
             ->add('profession')
             ->add('additional_information')
             ->add('Submit', SubmitType::class);
