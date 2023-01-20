@@ -5,6 +5,7 @@ namespace App\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
@@ -35,7 +36,10 @@ class UserController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return new Response('User created.');
+            return new JsonResponse([
+                'user_id' => $user->getId(),
+                'content' => 'User created.'
+            ], Response::HTTP_OK);
         }
 
         return new Response($twig->render('user/show.html.twig', [

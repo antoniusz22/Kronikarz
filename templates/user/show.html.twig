@@ -10,9 +10,8 @@
         $("form[name='user']").on('submit', (e) => {
             const formSerialize = $('form[name="user"]').serialize();
             $.post("../new-user", formSerialize, function (data, statusText, xhr) {
-                $("dialog[id='addUserForm']").html(data);
+                $("dialog[id='addUserForm']").html(data.content); // Id usera jest w data.user_id
             }).fail(function (data) {
-                // todo: handle error
                 $("dialog[id='addUserForm']").html(data);
             });
             e.preventDefault();
