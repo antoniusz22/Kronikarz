@@ -554,7 +554,7 @@ const makeRelationForm = () => {
         const formSerialize = $('form[name="relation"]').serialize();
 
         $.post("../new-relation", formSerialize, function (data) {
-          $("form[name='relation']").parent().html(data.content);
+          $("form[name='relation']").parent().html(data);
         }).fail(function (data) {
           $("form[name='relation']").parent().html(data);
         });

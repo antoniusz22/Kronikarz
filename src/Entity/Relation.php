@@ -28,7 +28,7 @@ class Relation
     #[ORM\Column]
     private ?int $relationship_type = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $wedding_date = null;
 
     public function getId(): ?int
@@ -76,7 +76,7 @@ class Relation
         return $this->wedding_date;
     }
 
-    public function setWeddingDate(\DateTimeInterface $wedding_date): self
+    public function setWeddingDate(?\DateTimeInterface $wedding_date): self
     {
         $this->wedding_date = $wedding_date;
 
