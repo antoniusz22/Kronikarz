@@ -65,13 +65,15 @@ class UserController extends AbstractController
         return new Response($reports);
     }
 
-    #[Route('/show-all-user/{id}')]
-    public function show_all_user(Request $request): Response
+    #[Route('/show-all-user')]
+    public function show_all_user(Request $request, UserInterface $loggedUser): Response
     {
         $em = $this->registry->getManager();
 
         $entities = $em->getRepository(User::class)->createQueryBuilder('u')
             ->select('u')
+            ->where('u.auth_id = :loggedId')
+            ->setParameter('loggedId', $loggedUser->getId())
             ->getQuery()
             ->getResult();
 
