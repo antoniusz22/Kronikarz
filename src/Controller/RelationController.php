@@ -25,11 +25,11 @@ class RelationController extends AbstractController
     }
 
     #[Route('/new-relation')]
-    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager, UserInterface $loggedUser): Response
     {
         $relation = new Relation();
 
-        $form = $this->createForm(RelationType::class, $relation);
+        $form = $this->createForm(RelationType::class, $relation, ['loggedId' => $loggedUser->getId()]);
 
         $form->handleRequest($request);
 
@@ -46,12 +46,12 @@ class RelationController extends AbstractController
     }
 
     #[Route('/edit-relation/{id}/', 'edit-relation', ['id' => '\d+'])] // todo: secure the @ParamConverter
-    public function edit(Request $request, Relation $relation): Response
+    public function edit(Request $request, Relation $relation, UserInterface $loggedUser): Response
     {
         $response = new Response('', Response::HTTP_OK);
 
         $em = $this->registry->getManager();
-        $form = $this->createForm(RelationType::class, $relation);
+        $form = $this->createForm(RelationType::class, $relation, ['loggedId' => $loggedUser->getId()]);
 
         $form->handleRequest($request);
 

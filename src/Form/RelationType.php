@@ -26,6 +26,14 @@ class RelationType extends AbstractType
                 },
                 'choice_value' => 'id',
                 'multiple' => false,
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    $queryBuilder = $er->createQueryBuilder('u');
+                    return $queryBuilder
+                        ->where(
+                            'u.auth_id = :loggedId'
+                        )
+                        ->setParameter('loggedId', $options['loggedId'] ?? 0);
+                },
             ])
             ->add('child', EntityType::class, [
                 'class' => User::class,
@@ -34,9 +42,17 @@ class RelationType extends AbstractType
                 },
                 'choice_value' => 'id',
                 'multiple' => false,
+                'query_builder' => function (EntityRepository $er) use ($options) {
+                    $queryBuilder = $er->createQueryBuilder('u');
+                    return $queryBuilder
+                        ->where(
+                            'u.auth_id = :loggedId'
+                        )
+                        ->setParameter('loggedId', $options['loggedId'] ?? 0);
+                },
             ])
             ->add('relationship_type', ChoiceType::class, [
-                'choices'  => [
+                'choices' => [
                     'Małżeństwo' => 0,
                     'Dziecko' => 1,
                     'Dalsza rodzina' => 2,
@@ -55,7 +71,8 @@ class RelationType extends AbstractType
             'data_class' => Relation::class,
             'csrf_protection' => true,
             'csrf_field_name' => '_token',
-            'csrf_token_id' => 'user_item'
+            'csrf_token_id' => 'user_item',
+            'loggedId' => 0
         ]);
     }
 }

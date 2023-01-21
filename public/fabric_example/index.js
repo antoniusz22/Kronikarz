@@ -701,4 +701,6 @@ openRelationModal.addEventListener("click", makeRelationForm);
 window.addEventListener("resize", resizeCanvas);
 
 createAllPeople();
-createAllRelations();
+setTimeout(function() { // można spróbować jakiegoś awaita
+  createAllRelations();
+}, 500);
