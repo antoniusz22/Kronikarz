@@ -3,17 +3,23 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Attribute;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_CLASS)]
 class User
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+//    #[ORM\OneToMany(mappedBy: "parent", targetEntity: Relation::class)]
+//    #[ORM\OneToMany(mappedBy: "child", targetEntity: Relation::class)]
+//    #[ORM\ManyToMany(targetEntity: Relation::class, inversedBy: "child")]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -50,6 +56,9 @@ class User
     #[ORM\Column]
 //    #[ORM\ManyToOne(targetEntity: Auth::class, inversedBy: 'id')]
     private ?int $auth_id = null;
+
+//    #[ORM\ManyToMany(targetEntity: Relation::class, mappedBy: )]
+//    private Collection $relations;
 
     public function getId(): ?int
     {

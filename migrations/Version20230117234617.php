@@ -16,8 +16,9 @@ final class Version20230117234617 extends AbstractMigration
     {
         $this->addSql('CREATE TABLE relation (
             id INT AUTO_INCREMENT NOT NULL, 
-            parent INT NOT NULL, child INT NOT NULL, 
+            parent_id INT NOT NULL, child_id INT NOT NULL, 
             relationship_type INT NOT NULL, 
+            wedding_date DATE DEFAULT NULL,
             PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
     ');
     }
