@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\AuthRepository;
+//use Doctrine\Common\Collections\ArrayCollection;
+//use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -15,6 +17,7 @@ class Auth implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+//    #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'auth_id')]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -24,7 +27,7 @@ class Auth implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     /**
-     * @var string The hashed password
+     * @var string|null The hashed password
      */
     #[ORM\Column]
     private ?string $password = null;

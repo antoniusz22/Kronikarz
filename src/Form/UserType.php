@@ -7,9 +7,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -20,8 +18,6 @@ class UserType extends AbstractType
         $builder
             ->add('firstName')
             ->add('lastName')
-//            ->add('email', EmailType::class)
-//            ->add('telephone', TelType::class)
             ->add('birthday', DateType::class, [
                 'widget' => 'single_text',
             ])

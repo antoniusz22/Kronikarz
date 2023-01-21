@@ -12,6 +12,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Twig\Environment;
 
 class UserController extends AbstractController
@@ -24,7 +25,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/new-user')]
-    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): Response
+    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UserInterface $loggedUser): Response
     {
         $user = new User();
 
@@ -33,6 +34,9 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $user->setAuthId($loggedUser->getId());
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -52,10 +56,9 @@ class UserController extends AbstractController
     public function show(Request $request, User $user): Response
     {
         $response = new Response('', Response::HTTP_OK);
-//
+
         $em = $this->registry->getManager();
         $form = $this->createForm(UserType::class, $user);
-        // JSON Response try
 
         $reports = $this->serializer->serialize($form->getNormData(), 'json');
 

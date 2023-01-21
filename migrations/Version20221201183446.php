@@ -14,11 +14,11 @@ final class Version20221201183446 extends AbstractMigration
         $this->addSql('
             CREATE TABLE `user` 
             (id INT AUTO_INCREMENT NOT NULL, first_name VARCHAR(255) NOT NULL, 
-            last_name VARCHAR(255) NOT NULL, email VARCHAR(255) DEFAULT NULL, 
-            telephone VARCHAR(255) DEFAULT NULL, birthday DATE NOT NULL, death DATE DEFAULT NULL, 
+            last_name VARCHAR(255) NOT NULL, birthday DATE NOT NULL, death DATE DEFAULT NULL, 
             birthplace VARCHAR(255) NOT NULL, country_of_birth VARCHAR(255) NOT NULL, 
             sex VARCHAR(255) NOT NULL, profession VARCHAR(255) DEFAULT NULL, 
             additional_information VARCHAR(255) DEFAULT NULL, 
+            auth_id INT DEFAULT NULL, 
             PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
                 ');
     }

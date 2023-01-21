@@ -23,13 +23,6 @@ class User
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     private ?string $lastName = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $email = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $telephone = null;
-
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotBlank]
     private ?\DateTimeInterface $birthday = null;
@@ -53,6 +46,10 @@ class User
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $additional_information = null;
+
+    #[ORM\Column]
+//    #[ORM\ManyToOne(targetEntity: Auth::class, inversedBy: 'id')]
+    private ?int $auth_id = null;
 
     public function getId(): ?int
     {
@@ -79,30 +76,6 @@ class User
     public function setLastName(string $lastName): self
     {
         $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getTelephone(): ?string
-    {
-        return $this->telephone;
-    }
-
-    public function setTelephone(string $telephone): self
-    {
-        $this->telephone = $telephone;
 
         return $this;
     }
@@ -187,6 +160,18 @@ class User
     public function setAdditionalInformation(?string $additional_information): self
     {
         $this->additional_information = $additional_information;
+
+        return $this;
+    }
+
+    public function getAuthId(): ?int
+    {
+        return $this->auth_id;
+    }
+
+    public function setAuthId(?int $auth_id): self
+    {
+        $this->auth_id = $auth_id;
 
         return $this;
     }
