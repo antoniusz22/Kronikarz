@@ -241,9 +241,16 @@ const makeLineBetweenChildAndParent = (parentsLine, child) => {
       stroke: "red",
       strokeWidth: 2,
       id: `${parentsLine.id}:${child.id}`,
-      selectable: false,
+      hasControls: false,
+      lockMovementX: true,
+      lockMovementY: true,
     }
   );
+  line.on("mousedblclick", () => {
+    // const modal = document.querySelector(`#dialog_${group.id}`);
+    // modal.showModal();
+    console.log(line);
+  });
   canvas.add(line);
   line.moveTo(0);
   canvas.renderAll();
@@ -262,9 +269,16 @@ const makeLineBetweenSpouses = (husband, wife) => {
       stroke: "red",
       strokeWidth: 2,
       id: `${husband.id}/${wife.id}`,
-      selectable: false,
+      hasControls: false,
+      lockMovementX: true,
+      lockMovementY: true,
     }
   );
+  line.on("mousedblclick", () => {
+    // const modal = document.querySelector(`#dialog_${group.id}`);
+    // modal.showModal();
+    console.log(line);
+  });
   canvas.add(line);
   line.moveTo(0);
   canvas.renderAll();
@@ -463,7 +477,6 @@ const editPerson = (user_id) => {
     $(() => {
       $("form[name='user']").on("submit", (e) => {
         const formSerialize = $('form[name="user"]').serialize();
-        console.log("dane zmienione"); // podmienić obiekt
         const person = getObject(user_id);
         person._objects[2].set(
           "text",
@@ -552,9 +565,34 @@ const makeRelationForm = () => {
     $(() => {
       $("form[name='relation']").on("submit", (e) => {
         const formSerialize = $('form[name="relation"]').serialize();
-
+        if ($("#relation_relationship_type").val() == 0) {
+          makeLineBetweenSpouses(
+            getObject($("#relation_parent").val()),
+            getObject($("#relation_child").val())
+          );
+        } else if ($("#relation_relationship_type").val() == 1) {
+          for (let object of canvas.getObjects()) {
+            if (
+              (new RegExp(`${$("#relation_parent").val()}/`).test(object.id) &&
+                !new RegExp(`:`).test(object.id)) ||
+              (new RegExp(`/${$("#relation_parent").val()}`).test(object.id) &&
+                !new RegExp(`:`).test(object.id))
+            ) {
+              makeLineBetweenChildAndParent(
+                object,
+                getObject($("#relation_child").val())
+              );
+            }
+          }
+        }
         $.post("../new-relation", formSerialize, function (data) {
           $("form[name='relation']").parent().html(data);
+          // $.ajax({
+          //   method: "GET",
+          //   url: `../show-all-relations`,
+          // }).done((data) => {
+          //   console.log(JSON.parse(data));
+          // });
         }).fail(function (data) {
           $("form[name='relation']").parent().html(data);
         });
@@ -566,9 +604,46 @@ const makeRelationForm = () => {
   modal.showModal();
 };
 
+const createAllRelations = () => {
+  $.ajax({
+    method: "GET",
+    url: `../show-all-relations`,
+  }).done((data) => {
+    const relations = JSON.parse(data);
+    console.log(relations);
+    for (const [index, relation] of relations.entries()) {
+      console.log(relation)
+      if (relation.relationship_type == 0) {
+        makeLineBetweenSpouses(
+          getObject(relation.parent.id),
+          getObject(relation.child.id)
+        );
+      }
+    }
+    for (const [index, relation] of relations.entries()) {
+      if (relation.relationship_type == 1) {
+        for (let object of canvas.getObjects()) {
+          if (
+            (new RegExp(`${relation.parent.id}/`).test(object.id) &&
+              !new RegExp(`:`).test(object.id)) ||
+            (new RegExp(`/${relation.parent.id}`).test(object.id) &&
+              !new RegExp(`:`).test(object.id))
+          ) {
+            makeLineBetweenChildAndParent(
+              object,
+              getObject(relation.child.id)
+            );
+          }
+        }
+      }
+    }
+    canvas.renderAll();
+  });
+};
+
 const getObject = (id) => {
   for (let object of canvas.getObjects()) {
-    if (Number(object.id) === id) return object;
+    if (object.id == id) return object;
   }
 };
 
@@ -626,3 +701,4 @@ openRelationModal.addEventListener("click", makeRelationForm);
 window.addEventListener("resize", resizeCanvas);
 
 createAllPeople();
+createAllRelations();
