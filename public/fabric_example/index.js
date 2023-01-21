@@ -455,8 +455,8 @@ const editPerson = (user_id) => {
     method: "GET",
     url: `../edit-user/${user_id}`,
   }).done((data) => {
-    $("#addUserForm").html(data);
-    const modal = document.querySelector("#addUserForm")
+    $("#userForm").html(data);
+    const modal = document.querySelector("#userForm");
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     modal.showModal();
@@ -477,12 +477,12 @@ const editPerson = (user_id) => {
 };
 
 const useForm = () => {
-  const modal = document.querySelector("#addUserForm");
+  const modal = document.querySelector("#userForm");
   $.ajax({
     method: "POST",
     url: "../new-user",
   }).done((data) => {
-    $("#addUserForm").html(data);
+    $("#userForm").html(data);
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
@@ -539,6 +539,33 @@ const useForm = () => {
   modal.showModal();
 };
 
+const makeRelationForm = () => {
+  const modal = document.querySelector("#relationForm");
+  $.ajax({
+    method: "POST",
+    url: "../new-relation",
+  }).done((data) => {
+    $("#relationForm").html(data);
+    const closeModal = document.querySelector(".closeRelationForm-btn");
+    console.log(closeModal);
+    closeModal.addEventListener("click", () => modal.close());
+    $(() => {
+      $("form[name='relation']").on("submit", (e) => {
+        const formSerialize = $('form[name="relation"]').serialize();
+
+        $.post("../new-relation", formSerialize, function (data) {
+          $("form[name='relation']").parent().html(data.content);
+        }).fail(function (data) {
+          $("form[name='relation']").parent().html(data);
+        });
+        e.preventDefault();
+        return false;
+      });
+    });
+  });
+  modal.showModal();
+};
+
 const getObject = (id) => {
   for (let object of canvas.getObjects()) {
     if (Number(object.id) === id) return object;
@@ -559,7 +586,6 @@ togglePanButton.addEventListener("mousedown", togglePan);
 const resetZoomButton = document.querySelector("#resetZoom");
 resetZoomButton.addEventListener("mousedown", () => {
   canvas.zoomToPoint(new fabric.Point(0, 0), 1);
-  createDialogFromJSON();
 });
 
 makeCanvasInteractive(canvas);
@@ -571,9 +597,13 @@ makeCanvasInteractive(canvas);
 
 canvas.renderAll();
 
-const openModal = document.querySelector(".openAddUserForm-btn");
+const openUserModal = document.querySelector(".openUserForm-btn");
 
-openModal.addEventListener("click", useForm);
+openUserModal.addEventListener("click", useForm);
+
+const openRelationModal = document.querySelector(".openRelationForm-btn");
+
+openRelationModal.addEventListener("click", makeRelationForm);
 
 // let cancel = true;
 // window.addEventListener("mousemove", () => {
