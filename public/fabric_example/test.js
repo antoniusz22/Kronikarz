@@ -1,32 +1,34 @@
 export class Person {
   constructor(
-    name,
-    surname,
-    dateOfBirth,
-    dateOfDeath,
+    id,
+    first_name,
+    last_name,
+    birthday,
+    death,
     dateOfMarriage,
-    placeOfBirth,
-    countryOfBirth,
+    birthplace,
+    country_of_birth,
     sex,
-    occupation,
-    additionalInfo,
+    profession,
+    additional_information,
     spouse,
     childs
   ) {
-    this.name = name;
-    this.surname = surname;
-    this.dateOfBirth = dateOfBirth;
-    this.dateOfDeath = dateOfDeath;
+    this.id = id;
+    this.first_name = first_name;
+    this.last_name = last_name;
+    this.birthday = birthday;
+    this.death = death;
     this.dateOfMarriage = dateOfMarriage;
-    this.placeOfBirth = placeOfBirth;
-    this.countryOfBirth = countryOfBirth;
+    this.birthplace = birthplace;
+    this.country_of_birth = country_of_birth;
     this.age = Math.floor(
-      (Date.parse(dateOfDeath) - Date.parse(dateOfBirth)) / 31536000000,
+      (Date.parse(death) - Date.parse(birthday)) / 31536000000,
       0
     ); // Amount of miliseconds in year
     this.sex = sex;
-    this.occupation = occupation;
-    this.additionalInfo = additionalInfo;
+    this.profession = profession;
+    this.additional_information = additional_information;
     this.spouse = spouse;
     this.childs = childs;
   }
