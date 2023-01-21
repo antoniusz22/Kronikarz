@@ -310,6 +310,10 @@ const createDialogFromJSON = (user_id) => {
     let personDeath = new Date(person.death);
 
     const dialog = document.createElement("dialog");
+    const closeBtn = document.createElement("button");
+    closeBtn.setAttribute("class", "closeUserForm-btn btn-close float-end");
+    closeBtn.addEventListener("click", () => dialog.close());
+    dialog.appendChild(closeBtn);
     let innerDiv = document.createElement("div");
     innerDiv.innerHTML += `ID: ${person.id} <br />`;
     innerDiv.innerHTML += `Imię: ${person.first_name} <br />`;
@@ -341,17 +345,43 @@ const createDialogFromJSON = (user_id) => {
           }/${personDeath.getFullYear()} <br />`;
     innerDiv.innerHTML += `Miejsce urodzenia: ${person.birthplace} <br />`;
     innerDiv.innerHTML += `Kraj urodzenia: ${person.country_of_birth} <br />`;
-    innerDiv.innerHTML += `Płeć: ${Number(person.sex) === 0 ? "Mężczyzna" : "Kobieta"} <br />`;
-    innerDiv.innerHTML += `${person.profession === undefined ? "" : "Zawód: " + person.profession + " <br />"}`;
-    innerDiv.innerHTML += `${person.additional_information === undefined ? "" : person.additional_information}`;
+    innerDiv.innerHTML += `Płeć: ${
+      Number(person.sex) === 0 ? "Mężczyzna" : "Kobieta"
+    } <br />`;
+    innerDiv.innerHTML += `${
+      person.profession === undefined
+        ? ""
+        : "Zawód: " + person.profession + " <br />"
+    }`;
+    innerDiv.innerHTML += `${
+      person.additional_information === undefined
+        ? ""
+        : person.additional_information
+    }`;
     dialog.setAttribute("id", `dialog_${person.id}`);
     dialog.appendChild(innerDiv);
     const editPersonBtn = document.createElement("button");
     editPersonBtn.setAttribute("id", "editPersonBtn");
+    editPersonBtn.setAttribute("class", "btn btn-primary");
     editPersonBtn.innerHTML += "Edytuj osobę";
     dialog.appendChild(editPersonBtn);
     document.body.appendChild(dialog);
     editPersonBtn.addEventListener("click", () => editPerson(user_id));
+  });
+};
+
+const createAllPeople = () => {
+  $.ajax({
+    method: "GET",
+    url: `../show-all-user/2`,
+  }).done((data) => {
+    const persons = JSON.parse(data);
+    console.log(persons);
+    for (const [index, personJSON] of persons.entries()) {
+      createPerson(canvas, personJSON, index);
+      createDialogFromJSON(personJSON.id);
+    }
+    canvas.renderAll();
   });
 };
 
@@ -406,8 +436,12 @@ const editDialog = (user_id) => {
         }/${personDeath.getFullYear()} <br />`;
   innerDiv.innerHTML += `Miejsce urodzenia: ${person.birthplace} <br />`;
   innerDiv.innerHTML += `Kraj urodzenia: ${person.country_of_birth} <br />`;
-  innerDiv.innerHTML += `Płeć: ${Number(person.sex) === 0 ? "Mężczyzna" : "Kobieta"} <br />`;
-  innerDiv.innerHTML += `${person.profession === "" ? "" : "Zawód: " + person.profession  + " <br />"}`;
+  innerDiv.innerHTML += `Płeć: ${
+    Number(person.sex) === 0 ? "Mężczyzna" : "Kobieta"
+  } <br />`;
+  innerDiv.innerHTML += `${
+    person.profession === "" ? "" : "Zawód: " + person.profession + " <br />"
+  }`;
   innerDiv.innerHTML += `${person.additional_information}`;
   console.log(innerDiv);
 };
@@ -422,7 +456,10 @@ const editPerson = (user_id) => {
     url: `../edit-user/${user_id}`,
   }).done((data) => {
     $("#addUserForm").html(data);
-    document.getElementById("addUserForm").showModal();
+    const modal = document.querySelector("#addUserForm")
+    const closeModal = document.querySelector(".closeUserForm-btn");
+    closeModal.addEventListener("click", () => modal.close());
+    modal.showModal();
     $(() => {
       $("form[name='user']").on("submit", (e) => {
         const formSerialize = $('form[name="user"]').serialize();
@@ -446,6 +483,8 @@ const useForm = () => {
     url: "../new-user",
   }).done((data) => {
     $("#addUserForm").html(data);
+    const closeModal = document.querySelector(".closeUserForm-btn");
+    closeModal.addEventListener("click", () => modal.close());
     $(() => {
       $("form[name='user']").on("submit", (e) => {
         const formSerialize = $('form[name="user"]').serialize();
@@ -533,13 +572,8 @@ makeCanvasInteractive(canvas);
 canvas.renderAll();
 
 const openModal = document.querySelector(".openAddUserForm-btn");
-const closeModal = document.querySelector(".closeAddUserForm-btn");
 
 openModal.addEventListener("click", useForm);
-
-closeModal.addEventListener("click", () => {
-  modal.close();
-});
 
 // let cancel = true;
 // window.addEventListener("mousemove", () => {
@@ -560,3 +594,5 @@ closeModal.addEventListener("click", () => {
 // });
 
 window.addEventListener("resize", resizeCanvas);
+
+createAllPeople();
