@@ -17,11 +17,9 @@ class Relation
     #[ORM\Column]
     private ?int $id = null;
 
-//    #[ORM\Column]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "id")]
     private User|null $parent = null;
 
-//    #[ORM\Column]
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "id")]
     private User|null $child = null;
 

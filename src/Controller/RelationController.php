@@ -3,19 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\Relation;
+use App\Entity\User;
 use App\Form\RelationType;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Twig\Environment;
 
 class RelationController extends AbstractController
 {
     public function __construct(
         private readonly ManagerRegistry $registry,
+        private readonly SerializerInterface $serializer
     )
     {
     }
@@ -82,5 +86,42 @@ class RelationController extends AbstractController
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
 
+    }
+
+    #[Route('/show-relation/{id}', 'show-relation', ['id' => '\d+'])]
+    public function show(Request $request, Relation $relation): Response
+    {
+        $form = $this->createForm(RelationType::class, $relation);
+
+        $reports = $this->serializer->serialize($form->getNormData(), 'json');
+
+        return new Response($reports);
+    }
+
+    #[Route('/show-all-relations')]
+    public function show_all_relations(Request $request, UserInterface $loggedUser): Response
+    {
+        $em = $this->registry->getManager();
+
+        $queryBuilder = $em->getRepository(Relation::class)->createQueryBuilder('r');
+
+        $entities = $queryBuilder
+            ->select('r')
+            ->where(
+            $queryBuilder->expr()->in(
+                "r.parent",
+                $em->getRepository(User::class)->createQueryBuilder('u')
+                    ->select('u.id')
+                    ->where('u.auth_id = :loggedId')
+                    ->getDQL()
+            )
+        )
+            ->setParameter('loggedId', $loggedUser->getId())
+            ->getQuery()
+            ->getResult();
+
+        $reports = $this->serializer->serialize($entities, 'json');
+
+        return new Response($reports);
     }
 }

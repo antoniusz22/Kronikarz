@@ -55,9 +55,6 @@ class UserController extends AbstractController
     #[Route('/show-user/{id}', 'show-user', ['id' => '\d+'])]
     public function show(Request $request, User $user): Response
     {
-        $response = new Response('', Response::HTTP_OK);
-
-        $em = $this->registry->getManager();
         $form = $this->createForm(UserType::class, $user);
 
         $reports = $this->serializer->serialize($form->getNormData(), 'json');
@@ -65,7 +62,7 @@ class UserController extends AbstractController
         return new Response($reports);
     }
 
-    #[Route('/show-all-user')]
+    #[Route('/show-all-users')]
     public function show_all_user(Request $request, UserInterface $loggedUser): Response
     {
         $em = $this->registry->getManager();

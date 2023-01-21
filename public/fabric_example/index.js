@@ -373,7 +373,7 @@ const createDialogFromJSON = (user_id) => {
 const createAllPeople = () => {
   $.ajax({
     method: "GET",
-    url: `../show-all-user`,
+    url: `../show-all-users`,
   }).done((data) => {
     const persons = JSON.parse(data);
     console.log(persons);
