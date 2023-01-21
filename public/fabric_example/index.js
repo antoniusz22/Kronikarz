@@ -359,12 +359,20 @@ const createDialogFromJSON = (user_id) => {
 };
 
 const editPerson = (user_id) => {
+  document.querySelectorAll('dialog')[document.querySelectorAll("dialog").length - 1].close();
+
   $.ajax({
     method: "GET",
     url: `../edit-user/${user_id}`,
   }).done((data) => {
-    $("#v_v_dialog").html(data);
-    $("#v_v_dialog").show();
+    $("#addUserForm").html(data);
+    document.getElementById('addUserForm').showModal();
+    $(() => {
+      $("form[name='user']").on('submit', (e) => {
+        const formSerialize = $('form[name="user"]').serialize();
+        console.log('dane zmienione'); // podmienić obiekt
+      });
+    });
   });
 };
 
@@ -373,41 +381,41 @@ const useForm = () => {
   $.ajax({
     method: "POST",
     url: "../new-user",
-  })
-    .done((data) => {
-      $("#addUserForm").html(data);
-    })
-    .done((data) => {
-      const userSubmitButton = document.querySelector("#user_Submit");
-      console.log(userSubmitButton);
-      userSubmitButton.addEventListener("click", () => {
-        const user_id = localStorage.getItem("user_id");
-        $.ajax({
-          method: "POST",
-          url: `../show-user/${user_id}`,
-        }).done((data) => {
-          const personJSON = JSON.parse(data);
-          const person = new Person(
-            personJSON.first_name,
-            personJSON.last_name,
-            personJSON.birthday,
-            personJSON.death,
+  }).done((data) => {
+    $("#addUserForm").html(data);
+    $(() => {
+      $("form[name='user']").on('submit', (e) => {
+        const formSerialize = $('form[name="user"]').serialize();
+
+        const person = new Person(
+            $('#user_firstName').val(),
+            $('#user_lastName').val(),
+            $('#user_birthday').val(),
+            $('#user_death').val(),
             undefined,
-            personJSON.birthplace,
-            personJSON.country_of_birth,
-            personJSON.sex,
-            personJSON.profession,
-            personJSON.additional_information,
+            $('#user_birthplace').val(),
+            $('#user_country_of_birth').val(),
+            $('#user_sex').val(),
+            $('#user_profession').val(),
+            $('#user_additional_information').val(),
             undefined,
             undefined
-          );
-          console.log(person);
+        );
+
+        $.post("../new-user", formSerialize, function (data) {
+          $("form[name='user']").parent().html(data.content);
+
           createPerson(canvas, person, 0);
-          createDialogFromJSON(user_id);
+          createDialogFromJSON(data.user_id);
+
+        }).fail(function (data) {
+          $("form[name='user']").parent().html(data);
         });
-        console.log(localStorage.getItem("user_id"));
+        e.preventDefault();
+        return false;
       });
     });
+  });
 
   modal.showModal();
 };

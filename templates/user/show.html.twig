@@ -6,16 +6,20 @@
 
 {% endblock %}
 <script>
-    $(() => {
-        $("form[name='user']").on('submit', (e) => {
-            const formSerialize = $('form[name="user"]').serialize();
-            $.post("..{{ app.request.pathinfo }}", formSerialize, function (data, statusText, xhr) {
-                $("dialog[id='addUserForm']").html(data.content);
-            }).fail(function (data) {
-                $("dialog[id='addUserForm']").html(data);
+    // uses only for problem with edit submit date
+    if ("{{ title }}" == "Edycja użytkownika")
+    {
+        $(() => {
+            $("form[name='user']").on('submit', (e) => {
+                const formSerialize = $('form[name="user"]').serialize();
+                $.post("..{{ app.request.pathinfo }}", formSerialize, function (data, statusText, xhr) {
+                    $("form[name='user']").parent().html(data.content);
+                }).fail(function (data) {
+                    $("form[name='user']").parent().html(data);
+                });
+                e.preventDefault();
+                return false;
             });
-            e.preventDefault();
-            return false;
         });
-    });
+    }
 </script>
