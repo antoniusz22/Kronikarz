@@ -49,24 +49,12 @@ class UserController extends AbstractController
     }
 
     #[Route('/show-user/{id}', 'show-user', ['id' => '\d+'])]
-    public function show(Request $request, User $relation): Response
+    public function show(Request $request, User $user): Response
     {
         $response = new Response('', Response::HTTP_OK);
 //
         $em = $this->registry->getManager();
-        $form = $this->createForm(UserType::class, $relation);
-//
-//        $form->handleRequest($request);
-//
-//
-//        return $this->render('user/show.html.twig', [
-//            'user_form' => $form->createView()
-//        ], $response);
-
-//        $serializer = $this->container->get('jms_serializer');
-
-//        dd($form->getNormData());
-
+        $form = $this->createForm(UserType::class, $user);
         // JSON Response try
 
         $reports = $this->serializer->serialize($form->getNormData(), 'json');
@@ -74,19 +62,34 @@ class UserController extends AbstractController
         return new Response($reports);
     }
 
+    #[Route('/show-all-user/{id}')]
+    public function show_all_user(Request $request): Response
+    {
+        $em = $this->registry->getManager();
+
+        $entities = $em->getRepository(User::class)->createQueryBuilder('u')
+            ->select('u')
+            ->getQuery()
+            ->getResult();
+
+        $reports = $this->serializer->serialize($entities, 'json');
+
+        return new Response($reports);
+    }
+
     #[Route('/edit-user/{id}/', 'edit-user', ['id' => '\d+'])] // todo: secure the @ParamConverter
-    public function edit(Request $request, User $relation): Response
+    public function edit(Request $request, User $user): Response
     {
         $response = new Response('', Response::HTTP_OK);
 
         $em = $this->registry->getManager();
-        $form = $this->createForm(UserType::class, $relation);
+        $form = $this->createForm(UserType::class, $user);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $em->persist($relation);
+                $em->persist($user);
                 $em->flush();
                 return new JsonResponse([
                     'content' => 'Zaktualizowano dane użytkownika.'
