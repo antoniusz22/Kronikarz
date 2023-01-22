@@ -549,7 +549,6 @@ const useForm = () => {
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
       $(document).on("submit", "form", function (event) {
-        const formSerialize = $('form[name="user"]').serialize();
         $.ajax({
           url: "../new-user",
           method: "POST",

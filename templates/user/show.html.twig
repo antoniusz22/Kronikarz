@@ -10,14 +10,22 @@
     if ("{{ title }}" == "Edycja użytkownika")
     {
         $(() => {
-            $("form[name='user']").on('submit', (e) => {
-                const formSerialize = $('form[name="user"]').serialize();
-                $.post("..{{ app.request.pathinfo }}", formSerialize, function (data, statusText, xhr) {
-                    $("form[name='user']").parent().html(data.content);
-                }).fail(function (data) {
-                    $("form[name='user']").parent().html(data);
+            $(document).on("submit", "form", function (event) {
+                $.ajax({
+                    url: "..{{ app.request.pathinfo }}",
+                    method: "POST",
+                    dataType: "JSON",
+                    data: new FormData(this),
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        $("form[name='user']").parent().html(data.content);
+                    },
+                    error: function (data) {
+                        $("form[name='user']").parent().html(data);
+                    }
                 });
-                e.preventDefault();
+                event.preventDefault();
                 return false;
             });
         });
