@@ -514,7 +514,8 @@ const deletePerson = () => {
   for (let object of canvas.getObjects()) {
     if (
       object.id.includes(`${person.id}/`) ||
-      object.id.includes(`/${person.id}`)
+      object.id.includes(`/${person.id}`) ||
+      object.id.includes(`:${person.id}`)
     ) {
       objectsToRemove.push(object);
       // canvas.remove(object);
@@ -524,7 +525,7 @@ const deletePerson = () => {
   if (objectsToRemove.length > 0) {
     const dialog = document.createElement("dialog");
     dialog.innerHTML +=
-      "Nie możesz usunąć osoby! Najpierw usuń relacje powiązane z tą osobą (małżeństwo, dzieci).";
+      "Nie możesz usunąć osoby! Najpierw usuń relacje powiązane z tą osobą (małżeństwo, dzieci, rodzice).";
     document.body.appendChild(dialog);
     dialog.showModal();
   } else {
