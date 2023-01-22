@@ -543,13 +543,13 @@ const downloadUserDate = () => {
     method: "GET",
     url: `../show-all-relations`,
   }).done((data) => {
-    var link = document.createElement('a');
-    link.download = 'data.json';
-    var blob = new Blob([data], {type: 'text/plain'});
+    var link = document.createElement("a");
+    link.download = "data.json";
+    var blob = new Blob([data], { type: "text/plain" });
     link.href = window.URL.createObjectURL(blob);
     link.click();
   });
-}
+};
 
 const useForm = () => {
   const modal = document.querySelector("#userForm");
@@ -577,27 +577,31 @@ const useForm = () => {
             }).done((data) => {
               const personJSON = JSON.parse(data);
               const person = new Person(
-                  personJSON.id,
-                  personJSON.first_name,
-                  personJSON.last_name,
-                  personJSON.birthday,
-                  personJSON.death,
-                  undefined,
-                  personJSON.birthplace,
-                  personJSON.country_of_birth,
-                  personJSON.sex,
-                  personJSON.profession,
-                  personJSON.additional_information,
-                  undefined,
-                  undefined
+                personJSON.id,
+                personJSON.first_name,
+                personJSON.last_name,
+                personJSON.birthday,
+                personJSON.death,
+                undefined,
+                personJSON.birthplace,
+                personJSON.country_of_birth,
+                personJSON.sex,
+                personJSON.profession,
+                personJSON.additional_information,
+                undefined,
+                undefined,
+                undefined,
+                undefined,
+                personJSON.avatar
               );
+
               createPerson(canvas, person, 0);
               createDialogFromJSON(person.id);
             });
           },
           error: function (xhr, desc, err) {
             $("form[name='user']").parent().html(data);
-          }
+          },
         });
 
         event.preventDefault();
@@ -736,7 +740,9 @@ const editRelation = (id) => {
         deleteRelationBtn.setAttribute("id", "deleteRelationBtn");
         deleteRelationBtn.setAttribute("class", "btn btn-danger");
         deleteRelationBtn.innerHTML += "Usuń relację";
-        document.querySelector("#relationForm").appendChild(deleteRelationBtn);
+        document
+          .querySelectorAll("#relation .form-group .col-sm-10")[4]
+          .appendChild(deleteRelationBtn);
         deleteRelationBtn.addEventListener("click", () => deleteRelation());
         modal.showModal();
         $(() => {
@@ -875,6 +881,9 @@ openUserModal.addEventListener("click", useForm);
 const openRelationModal = document.querySelector(".openRelationForm-btn");
 
 openRelationModal.addEventListener("click", relationForm);
+
+const downloadJSON = document.querySelector(".downloadJSON-btn");
+downloadJSON.addEventListener("click", downloadUserDate);
 
 // let cancel = true;
 // window.addEventListener("mousemove", () => {
