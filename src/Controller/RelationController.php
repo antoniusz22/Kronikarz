@@ -33,7 +33,10 @@ class RelationController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()
+            && $form->isValid()
+            && $relation->getParent() !== $relation->getChild()
+        ) {
             $entityManager->persist($relation);
             $entityManager->flush();
 
