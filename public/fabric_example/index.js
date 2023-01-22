@@ -163,7 +163,9 @@ const createPerson = (canvas, person, i) => {
     group.on("mouseup", () => {
       $.ajax({
         method: "GET",
-        url: `../set-position/${group.id}-${group.left}-${group.top}`,
+        url: `../set-position/${group.id}-${parseInt(group.left)}-${parseInt(
+          group.top
+        )}`,
       });
     });
     group.on("moving", (opt) => {
@@ -253,9 +255,6 @@ const makeLineBetweenChildAndParent = (parentsLine, child) => {
     }
   );
   line.on("mousedblclick", () => {
-    // const modal = document.querySelector(`#dialog_${group.id}`);
-    // modal.showModal();
-    console.log(line.id);
     editRelation(line.id);
   });
   canvas.add(line);
@@ -282,9 +281,6 @@ const makeLineBetweenSpouses = (husband, wife) => {
     }
   );
   line.on("mousedblclick", () => {
-    // const modal = document.querySelector(`#dialog_${group.id}`);
-    // modal.showModal();
-    console.log(line.id);
     editRelation(line.id);
   });
   canvas.add(line);
@@ -387,8 +383,14 @@ const createDialogFromJSON = (user_id) => {
     editPersonBtn.setAttribute("class", "btn btn-primary");
     editPersonBtn.innerHTML += "Edytuj osobę";
     dialog.appendChild(editPersonBtn);
+    const deletePersonBtn = document.createElement("button");
+    deletePersonBtn.setAttribute("id", "deletePersonBtn");
+    deletePersonBtn.setAttribute("class", "btn btn-danger");
+    deletePersonBtn.innerHTML += "Usuń osobę";
+    dialog.appendChild(deletePersonBtn);
     document.body.appendChild(dialog);
     editPersonBtn.addEventListener("click", () => editPerson(user_id));
+    deletePersonBtn.addEventListener("click", () => deletePerson());
   });
 };
 
@@ -399,7 +401,6 @@ const createAllPeople = () => {
       url: `../show-all-users`,
     }).done((data) => {
       const persons = JSON.parse(data);
-      console.log(persons);
       for (const [index, personJSON] of persons.entries()) {
         createPerson(canvas, personJSON, index);
         createDialogFromJSON(personJSON.id);
@@ -431,7 +432,6 @@ const editDialog = (user_id) => {
     undefined,
     undefined
   );
-  console.log(person);
 
   let personBirthday = new Date(person.birthday);
   let personDeath = new Date(person.death);
@@ -469,7 +469,6 @@ const editDialog = (user_id) => {
     person.profession === "" ? "" : "Zawód: " + person.profession + " <br />"
   }`;
   innerDiv.innerHTML += `${person.additional_information}`;
-  console.log(innerDiv);
 };
 
 const editPerson = (user_id) => {
@@ -499,6 +498,30 @@ const editPerson = (user_id) => {
       });
     });
   });
+};
+
+const deletePerson = () => {
+  const person = canvas.getActiveObject();
+  console.log(person.id);
+  const objectsToRemove = [];
+  for (let object of canvas.getObjects()) {
+    if (
+      object.id.includes(`${person.id}/`) ||
+      object.id.includes(`/${person.id}`)
+    ) {
+      objectsToRemove.push(object);
+      canvas.remove(object);
+    }
+  }
+
+  console.log(objectsToRemove);
+
+  $.ajax({
+    method: "GET",
+    url: `../delete-user/${person.id}`,
+  });
+
+  canvas.remove(person);
 };
 
 const useForm = () => {
@@ -548,7 +571,6 @@ const useForm = () => {
               // undefined,
               // undefined
             );
-            console.log(person);
             createPerson(canvas, person, 0);
             createDialogFromJSON(person.id);
           });
@@ -572,7 +594,6 @@ const relationForm = () => {
   }).done((data) => {
     $("#relationForm").html(data);
     const closeModal = document.querySelector(".closeRelationForm-btn");
-    console.log(closeModal);
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
       $("form[name='relation']").on("submit", (e) => {
@@ -599,12 +620,6 @@ const relationForm = () => {
         }
         $.post("../new-relation", formSerialize, function (data) {
           $("form[name='relation']").parent().html(data);
-          // $.ajax({
-          //   method: "GET",
-          //   url: `../show-all-relations`,
-          // }).done((data) => {
-          //   console.log(JSON.parse(data));
-          // });
         }).fail(function (data) {
           $("form[name='relation']").parent().html(data);
         });
@@ -624,9 +639,7 @@ const createAllRelations = () => {
         url: `../show-all-relations`,
       }).done((data) => {
         const relations = JSON.parse(data);
-        console.log(relations);
         for (const [index, relation] of relations.entries()) {
-          console.log(relation);
           if (relation.relationship_type == 0) {
             makeLineBetweenSpouses(
               getObject(relation.parent.id),
@@ -660,7 +673,6 @@ const createAllRelations = () => {
 };
 
 const editRelation = (id) => {
-  console.log(id);
   let relation_id = "";
   $.ajax({
     method: "GET",
@@ -668,7 +680,6 @@ const editRelation = (id) => {
   })
     .done((data) => {
       for (let relation of JSON.parse(data)) {
-        console.log(relation);
         if (!new RegExp(`:`).test(id)) {
           if (
             id.split("/")[0] == relation.parent.id &&
@@ -678,7 +689,6 @@ const editRelation = (id) => {
             relation_id = relation.id;
           }
         } else {
-          console.log(id);
           if (
             (id.split(":")[0].split("/")[0] == relation.parent.id ||
               id.split(":")[0].split("/")[1] == relation.parent.id) &&
@@ -699,6 +709,12 @@ const editRelation = (id) => {
         const modal = document.querySelector("#relationForm");
         const closeModal = document.querySelector(".closeRelationForm-btn");
         closeModal.addEventListener("click", () => modal.close());
+        const deleteRelationBtn = document.createElement("button");
+        deleteRelationBtn.setAttribute("id", "deleteRelationBtn");
+        deleteRelationBtn.setAttribute("class", "btn btn-danger");
+        deleteRelationBtn.innerHTML += "Usuń relację";
+        document.querySelector("#relationForm").appendChild(deleteRelationBtn);
+        deleteRelationBtn.addEventListener("click", () => deleteRelation());
         modal.showModal();
         $(() => {
           $("form[name='relation']").on("submit", (e) => {
@@ -735,6 +751,59 @@ const editRelation = (id) => {
         });
       });
     });
+};
+
+const deleteRelation = () => {
+  const relation = canvas.getActiveObject();
+  console.log(relation.id);
+  const objectsToRemove = [];
+  for (let object of canvas.getObjects()) {
+    if (object.id.includes(`${relation.id}`)) {
+      objectsToRemove.push(object);
+      canvas.remove(object);
+    }
+  }
+
+  console.log(objectsToRemove);
+
+  const idsToRemove = [];
+
+  $.ajax({
+    method: "GET",
+    url: `../show-all-relations`,
+  }).done((data) => {
+    for (let object of objectsToRemove) {
+      for (let relation of JSON.parse(data)) {
+        if (!new RegExp(`:`).test(object.id)) {
+          if (
+            object.id.split("/")[0] == relation.parent.id &&
+            object.id.split("/")[1] == relation.child.id &&
+            relation.relationship_type == 0
+          ) {
+            idsToRemove.push(relation.id);
+          }
+        } else {
+          if (
+            (object.id.split(":")[0].split("/")[0] == relation.parent.id ||
+              object.id.split(":")[0].split("/")[1] == relation.parent.id) &&
+            object.id.split(":")[1] == relation.child.id &&
+            relation.relationship_type == 1
+          ) {
+            idsToRemove.push(relation.id);
+          }
+        }
+      }
+    }
+
+    for(let id of idsToRemove) {
+      $.ajax({
+        method: "GET",
+        url: `../delete-relation/${id}`,
+      });
+    }
+    console.log(idsToRemove);
+  });
+
 };
 
 const getObject = (id) => {
