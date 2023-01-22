@@ -43,6 +43,7 @@ const initCanvas = (id) => {
     width: document.body.clientWidth * 0.8,
     height: document.body.clientHeight * 0.8,
     selection: false,
+    backgroundColor: "white",
   });
 };
 
@@ -848,6 +849,19 @@ const getObject = (id) => {
     if (object.id == id) return object;
   }
 };
+
+const saveButton = document.querySelector(".downloadCanvas-btn");
+saveButton.addEventListener(
+  "click",
+  function (e) {
+    this.href = canvas.toDataURL({
+      format: "png",
+    });
+    this.download = "canvas.png";
+    // console.log(canvas.toSVG());
+  },
+  false
+);
 
 const canvas = initCanvas("canvas");
 
