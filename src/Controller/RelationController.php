@@ -9,6 +9,7 @@ use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,6 +45,7 @@ class RelationController extends AbstractController
         }
 
         return new Response($twig->render('relation/index.html.twig', [
+            'title' => 'Nowa relacja',
             'relation_form' => $form->createView()
         ]));
     }
@@ -62,12 +64,16 @@ class RelationController extends AbstractController
             if ($form->isValid()) {
                 $em->persist($relation);
                 $em->flush();
+                return new JsonResponse([
+                    'content' => 'Zaktualizowano dane relacji.'
+                ]);
             } else {
                 $response = new Response('', Response::HTTP_BAD_REQUEST);
             }
         }
 
         return $this->render('relation/index.html.twig', [
+            'title' => 'Edycja relacji',
             'relation_form' => $form->createView()
         ], $response);
     }

@@ -723,15 +723,6 @@ const editRelation = (id) => {
                 }
               }
             }
-            $.post(
-              `../edit-relation/${relation_id}`,
-              formSerialize,
-              function (data) {
-                $("form[name='relation']").parent().html(data);
-              }
-            ).fail(function (data) {
-              $("form[name='relation']").parent().html(data);
-            });
             canvas.renderAll();
             e.preventDefault();
           });
