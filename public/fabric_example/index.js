@@ -538,6 +538,19 @@ const deletePerson = () => {
   }
 };
 
+const downloadUserDate = () => {
+  $.ajax({
+    method: "GET",
+    url: `../show-all-relations`,
+  }).done((data) => {
+    var link = document.createElement('a');
+    link.download = 'data.json';
+    var blob = new Blob([data], {type: 'text/plain'});
+    link.href = window.URL.createObjectURL(blob);
+    link.click();
+  });
+}
+
 const useForm = () => {
   const modal = document.querySelector("#userForm");
   $.ajax({
@@ -557,6 +570,7 @@ const useForm = () => {
           processData: false,
           contentType: false,
           success: function (data) {
+            $("form[name='user']").parent().html(data.content);
             $.ajax({
               method: "GET",
               url: `../show-user/${data.user_id}`,
