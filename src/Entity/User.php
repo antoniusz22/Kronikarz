@@ -54,11 +54,13 @@ class User
     private ?string $additional_information = null;
 
     #[ORM\Column]
-//    #[ORM\ManyToOne(targetEntity: Auth::class, inversedBy: 'id')]
     private ?int $auth_id = null;
 
-//    #[ORM\ManyToMany(targetEntity: Relation::class, mappedBy: )]
-//    private Collection $relations;
+    #[ORM\Column]
+    private ?int $position_X = null;
+
+    #[ORM\Column]
+    private ?int $position_Y = null;
 
     public function getId(): ?int
     {
@@ -181,6 +183,30 @@ class User
     public function setAuthId(?int $auth_id): self
     {
         $this->auth_id = $auth_id;
+
+        return $this;
+    }
+
+    public function getPositionX(): ?int
+    {
+        return $this->position_X;
+    }
+
+    public function setPositionX(?int $position_X): self
+    {
+        $this->position_X = $position_X;
+
+        return $this;
+    }
+
+    public function getPositionY(): ?int
+    {
+        return $this->position_Y;
+    }
+
+    public function setPositionY(?int $position_Y): self
+    {
+        $this->position_Y = $position_Y;
 
         return $this;
     }

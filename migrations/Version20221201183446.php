@@ -19,6 +19,8 @@ final class Version20221201183446 extends AbstractMigration
             sex VARCHAR(255) NOT NULL, profession VARCHAR(255) DEFAULT NULL, 
             additional_information VARCHAR(255) DEFAULT NULL, 
             auth_id INT DEFAULT NULL, 
+            position_X INT DEFAULT NULL, 
+            position_Y INT DEFAULT NULL, 
             PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
                 ');
     }

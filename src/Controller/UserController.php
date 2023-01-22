@@ -110,9 +110,6 @@ class UserController extends AbstractController
     #[Route('/delete-user/{id}', 'delete-user', ['id' => '\d+'])]
     public function delete(int $id): Response
     {
-        if (!is_numeric($id)) {
-            return new Response('', Response::HTTP_BAD_REQUEST);
-        }
         $em = $this->registry->getManager();
         $entity = $em->getRepository(User::class)->findOneBy(['id' => $id]);
         if (!is_null($entity)) {
@@ -123,6 +120,26 @@ class UserController extends AbstractController
         } else {
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
-
     }
+
+    #[Route('/set-position/{id}-{position_X}-{position_Y}')]
+    public function setPosition(int $id, int $position_X, int $position_Y): Response
+    {
+        $em = $this->registry->getManager();
+        $entity = $em->getRepository(User::class)->findOneBy(['id' => $id]);
+
+        if(!is_null($entity)) {
+            $entity->setPositionX($position_X);
+            $entity->setPositionY($position_Y);
+
+            $em->persist($entity);
+            $em->flush();
+
+            return new Response('', Response::HTTP_OK);
+        }
+        else {
+            return new Response('', Response::HTTP_BAD_REQUEST);
+        }
+    }
+
 }
