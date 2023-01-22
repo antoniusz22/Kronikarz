@@ -249,7 +249,8 @@ const makeLineBetweenChildAndParent = (parentsLine, child) => {
   line.on("mousedblclick", () => {
     // const modal = document.querySelector(`#dialog_${group.id}`);
     // modal.showModal();
-    console.log(line);
+    console.log(line.id);
+    editRelation(line.id);
   });
   canvas.add(line);
   line.moveTo(0);
@@ -277,7 +278,8 @@ const makeLineBetweenSpouses = (husband, wife) => {
   line.on("mousedblclick", () => {
     // const modal = document.querySelector(`#dialog_${group.id}`);
     // modal.showModal();
-    console.log(line);
+    console.log(line.id);
+    editRelation(line.id);
   });
   canvas.add(line);
   line.moveTo(0);
@@ -385,17 +387,21 @@ const createDialogFromJSON = (user_id) => {
 };
 
 const createAllPeople = () => {
-  $.ajax({
-    method: "GET",
-    url: `../show-all-users`,
-  }).done((data) => {
-    const persons = JSON.parse(data);
-    console.log(persons);
-    for (const [index, personJSON] of persons.entries()) {
-      createPerson(canvas, personJSON, index);
-      createDialogFromJSON(personJSON.id);
-    }
-    canvas.renderAll();
+  return new Promise((resolve) => {
+    $.ajax({
+      method: "GET",
+      url: `../show-all-users`,
+    }).done((data) => {
+      const persons = JSON.parse(data);
+      console.log(persons);
+      for (const [index, personJSON] of persons.entries()) {
+        createPerson(canvas, personJSON, index);
+        createDialogFromJSON(personJSON.id);
+      }
+      canvas.renderAll();
+    });
+    console.log("Ludzie utworzeni");
+    resolve();
   });
 };
 
@@ -552,7 +558,7 @@ const useForm = () => {
   modal.showModal();
 };
 
-const makeRelationForm = () => {
+const relationForm = () => {
   const modal = document.querySelector("#relationForm");
   $.ajax({
     method: "POST",
@@ -605,40 +611,133 @@ const makeRelationForm = () => {
 };
 
 const createAllRelations = () => {
-  $.ajax({
-    method: "GET",
-    url: `../show-all-relations`,
-  }).done((data) => {
-    const relations = JSON.parse(data);
-    console.log(relations);
-    for (const [index, relation] of relations.entries()) {
-      console.log(relation)
-      if (relation.relationship_type == 0) {
-        makeLineBetweenSpouses(
-          getObject(relation.parent.id),
-          getObject(relation.child.id)
-        );
-      }
-    }
-    for (const [index, relation] of relations.entries()) {
-      if (relation.relationship_type == 1) {
-        for (let object of canvas.getObjects()) {
-          if (
-            (new RegExp(`${relation.parent.id}/`).test(object.id) &&
-              !new RegExp(`:`).test(object.id)) ||
-            (new RegExp(`/${relation.parent.id}`).test(object.id) &&
-              !new RegExp(`:`).test(object.id))
-          ) {
-            makeLineBetweenChildAndParent(
-              object,
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      $.ajax({
+        method: "GET",
+        url: `../show-all-relations`,
+      }).done((data) => {
+        const relations = JSON.parse(data);
+        console.log(relations);
+        for (const [index, relation] of relations.entries()) {
+          console.log(relation);
+          if (relation.relationship_type == 0) {
+            makeLineBetweenSpouses(
+              getObject(relation.parent.id),
               getObject(relation.child.id)
             );
           }
         }
-      }
-    }
-    canvas.renderAll();
+        for (const [index, relation] of relations.entries()) {
+          if (relation.relationship_type == 1) {
+            for (let object of canvas.getObjects()) {
+              if (
+                (new RegExp(`${relation.parent.id}/`).test(object.id) &&
+                  !new RegExp(`:`).test(object.id)) ||
+                (new RegExp(`/${relation.parent.id}`).test(object.id) &&
+                  !new RegExp(`:`).test(object.id))
+              ) {
+                makeLineBetweenChildAndParent(
+                  object,
+                  getObject(relation.child.id)
+                );
+              }
+            }
+          }
+        }
+        canvas.renderAll();
+      });
+      console.log("Relacje utworzone");
+      resolve();
+    }, 1);
   });
+};
+
+const editRelation = (id) => {
+  console.log(id);
+  let relation_id = "";
+  $.ajax({
+    method: "GET",
+    url: `../show-all-relations`,
+  })
+    .done((data) => {
+      for (let relation of JSON.parse(data)) {
+        console.log(relation);
+        if (!new RegExp(`:`).test(id)) {
+          if (
+            id.split("/")[0] == relation.parent.id &&
+            id.split("/")[1] == relation.child.id &&
+            relation.relationship_type == 0
+          ) {
+            relation_id = relation.id;
+          }
+        } else {
+          console.log(id);
+          if (
+            (id.split(":")[0].split("/")[0] == relation.parent.id ||
+              id.split(":")[0].split("/")[1] == relation.parent.id) &&
+            id.split(":")[1] == relation.child.id &&
+            relation.relationship_type == 1
+          ) {
+            relation_id = relation.id;
+          }
+        }
+      }
+    })
+    .done(() => {
+      $.ajax({
+        method: "GET",
+        url: `../edit-relation/${relation_id}`,
+      }).done((data) => {
+        $("#relationForm").html(data);
+        const modal = document.querySelector("#relationForm");
+        const closeModal = document.querySelector(".closeRelationForm-btn");
+        closeModal.addEventListener("click", () => modal.close());
+        modal.showModal();
+        $(() => {
+          $("form[name='relation']").on("submit", (e) => {
+            const formSerialize = $('form[name="relation"]').serialize();
+            const relation = getObject(id);
+            canvas.remove(relation);
+            if ($("#relation_relationship_type").val() == 0) {
+              makeLineBetweenSpouses(
+                getObject($("#relation_parent").val()),
+                getObject($("#relation_child").val())
+              );
+            } else if ($("#relation_relationship_type").val() == 1) {
+              for (let object of canvas.getObjects()) {
+                if (
+                  (new RegExp(`${$("#relation_parent").val()}/`).test(
+                    object.id
+                  ) &&
+                    !new RegExp(`:`).test(object.id)) ||
+                  (new RegExp(`/${$("#relation_parent").val()}`).test(
+                    object.id
+                  ) &&
+                    !new RegExp(`:`).test(object.id))
+                ) {
+                  makeLineBetweenChildAndParent(
+                    object,
+                    getObject($("#relation_child").val())
+                  );
+                }
+              }
+            }
+            $.post(
+              `../edit-relation/${relation_id}`,
+              formSerialize,
+              function (data) {
+                $("form[name='relation']").parent().html(data);
+              }
+            ).fail(function (data) {
+              $("form[name='relation']").parent().html(data);
+            });
+            canvas.renderAll();
+            e.preventDefault();
+          });
+        });
+      });
+    });
 };
 
 const getObject = (id) => {
@@ -678,7 +777,7 @@ openUserModal.addEventListener("click", useForm);
 
 const openRelationModal = document.querySelector(".openRelationForm-btn");
 
-openRelationModal.addEventListener("click", makeRelationForm);
+openRelationModal.addEventListener("click", relationForm);
 
 // let cancel = true;
 // window.addEventListener("mousemove", () => {
@@ -700,7 +799,10 @@ openRelationModal.addEventListener("click", makeRelationForm);
 
 window.addEventListener("resize", resizeCanvas);
 
-createAllPeople();
-setTimeout(function() { // można spróbować jakiegoś awaita
-  createAllRelations();
-}, 500);
+async function makeCanvas() {
+  await createAllPeople();
+  await createAllRelations();
+  console.log("Zrobione");
+}
+
+makeCanvas();
