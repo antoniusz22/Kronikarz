@@ -143,97 +143,104 @@ const createPerson = (canvas, person, i) => {
     left: rect.width * 0.5,
   });
 
-  fabric.Image.fromURL("./test.jpg", (oImg) => {
-    oImg.scaleToHeight(180);
-    let img = oImg.set({
-      width: (150 * oImg.height) / 180,
-      left: 25,
-      top: 1,
-    });
-    let group = new fabric.Group([rect, img, text], {
-      id: `${person.id}`,
-      left: person.position__x != undefined ? person.position__x : 0,
-      top: person.position__y != undefined ? person.position__y : 0,
-      spouse: `${person.spouse}`,
-      children: person.childs,
-      hasControls: false,
-    });
-    canvas.add(group);
-    canvas.renderAll();
-    group.on("mouseup", () => {
-      $.ajax({
-        method: "GET",
-        url: `../set-position/${group.id}-${parseInt(group.left)}-${parseInt(
-          group.top
-        )}`,
+  fabric.Image.fromURL(
+    `${
+      person.avatar != undefined
+        ? "../avatars_directory/" + person.avatar
+        : "test.jpg"
+    }`,
+    (oImg) => {
+      oImg.scaleToHeight(180);
+      let img = oImg.set({
+        width: (150 * oImg.height) / 180,
+        left: 25,
+        top: 1,
       });
-    });
-    group.on("moving", (opt) => {
-      let id = canvas.getActiveObject().id;
-      // Linie dzieci
-      let linesChild = [];
-      for (let object of canvas.getObjects()) {
-        if (new RegExp(`:${id}`).test(object.id)) {
-          linesChild.push(object);
-        }
-      }
-      for (let line of linesChild) {
-        line.set({
-          x2: line.x2 + opt.e.movementX / canvas.getZoom(),
-          y2: line.y2 + opt.e.movementY / canvas.getZoom(),
-        });
-      }
-
-      // Linie małżeństwa
-      let lineSpouse1 = [];
-      let lineSpouse2 = [];
-      let lineChildren = [];
-      for (let object of canvas.getObjects()) {
-        if (
-          new RegExp(`${id}/`).test(object.id) &&
-          !new RegExp(`:`).test(object.id)
-        ) {
-          lineSpouse1.push(object);
-        } else if (
-          new RegExp(`/${id}`).test(object.id) &&
-          !new RegExp(`:`).test(object.id)
-        ) {
-          lineSpouse2.push(object);
-        } else if (
-          (new RegExp(`${id}/`).test(object.id) ||
-            new RegExp(`/${id}`).test(object.id)) &&
-          new RegExp(`:`).test(object.id)
-        ) {
-          lineChildren.push(object);
-        }
-      }
-      for (let line of lineSpouse1) {
-        line.set({
-          x1: line.x1 + opt.e.movementX / canvas.getZoom(),
-          y1: line.y1 + opt.e.movementY / canvas.getZoom(),
-        });
-      }
-      for (let line of lineSpouse2) {
-        line.set({
-          x2: line.x2 + opt.e.movementX / canvas.getZoom(),
-          y2: line.y2 + opt.e.movementY / canvas.getZoom(),
-        });
-      }
-      for (let line of lineChildren) {
-        let parentsLine = getObject(`${line.id.split(":")[0]}`);
-        line.set({
-          x1: parentsLine.left + parentsLine.width / 2,
-          y1: parentsLine.top + parentsLine.height / 2,
-        });
-      }
+      let group = new fabric.Group([rect, img, text], {
+        id: `${person.id}`,
+        left: person.position__x != undefined ? person.position__x : 0,
+        top: person.position__y != undefined ? person.position__y : 0,
+        spouse: `${person.spouse}`,
+        children: person.childs,
+        hasControls: false,
+      });
+      canvas.add(group);
       canvas.renderAll();
-    });
+      group.on("mouseup", () => {
+        $.ajax({
+          method: "GET",
+          url: `../set-position/${group.id}-${parseInt(group.left)}-${parseInt(
+            group.top
+          )}`,
+        });
+      });
+      group.on("moving", (opt) => {
+        let id = canvas.getActiveObject().id;
+        // Linie dzieci
+        let linesChild = [];
+        for (let object of canvas.getObjects()) {
+          if (new RegExp(`:${id}`).test(object.id)) {
+            linesChild.push(object);
+          }
+        }
+        for (let line of linesChild) {
+          line.set({
+            x2: line.x2 + opt.e.movementX / canvas.getZoom(),
+            y2: line.y2 + opt.e.movementY / canvas.getZoom(),
+          });
+        }
 
-    group.on("mousedblclick", () => {
-      const modal = document.querySelector(`#dialog_${group.id}`);
-      modal.showModal();
-    });
-  });
+        // Linie małżeństwa
+        let lineSpouse1 = [];
+        let lineSpouse2 = [];
+        let lineChildren = [];
+        for (let object of canvas.getObjects()) {
+          if (
+            new RegExp(`${id}/`).test(object.id) &&
+            !new RegExp(`:`).test(object.id)
+          ) {
+            lineSpouse1.push(object);
+          } else if (
+            new RegExp(`/${id}`).test(object.id) &&
+            !new RegExp(`:`).test(object.id)
+          ) {
+            lineSpouse2.push(object);
+          } else if (
+            (new RegExp(`${id}/`).test(object.id) ||
+              new RegExp(`/${id}`).test(object.id)) &&
+            new RegExp(`:`).test(object.id)
+          ) {
+            lineChildren.push(object);
+          }
+        }
+        for (let line of lineSpouse1) {
+          line.set({
+            x1: line.x1 + opt.e.movementX / canvas.getZoom(),
+            y1: line.y1 + opt.e.movementY / canvas.getZoom(),
+          });
+        }
+        for (let line of lineSpouse2) {
+          line.set({
+            x2: line.x2 + opt.e.movementX / canvas.getZoom(),
+            y2: line.y2 + opt.e.movementY / canvas.getZoom(),
+          });
+        }
+        for (let line of lineChildren) {
+          let parentsLine = getObject(`${line.id.split(":")[0]}`);
+          line.set({
+            x1: parentsLine.left + parentsLine.width / 2,
+            y1: parentsLine.top + parentsLine.height / 2,
+          });
+        }
+        canvas.renderAll();
+      });
+
+      group.on("mousedblclick", () => {
+        const modal = document.querySelector(`#dialog_${group.id}`);
+        modal.showModal();
+      });
+    }
+  );
 };
 
 const makeLineBetweenChildAndParent = (parentsLine, child) => {
@@ -510,18 +517,24 @@ const deletePerson = () => {
       object.id.includes(`/${person.id}`)
     ) {
       objectsToRemove.push(object);
-      canvas.remove(object);
+      // canvas.remove(object);
     }
   }
 
-  console.log(objectsToRemove);
+  if (objectsToRemove.length > 0) {
+    const dialog = document.createElement("dialog");
+    dialog.innerHTML +=
+      "Nie możesz usunąć osoby! Najpierw usuń relacje powiązane z tą osobą (małżeństwo, dzieci).";
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  } else {
+    $.ajax({
+      method: "GET",
+      url: `../delete-user/${person.id}`,
+    });
 
-  $.ajax({
-    method: "GET",
-    url: `../delete-user/${person.id}`,
-  });
-
-  canvas.remove(person);
+    canvas.remove(person);
+  }
 };
 
 const useForm = () => {
@@ -760,7 +773,7 @@ const deleteRelation = () => {
   for (let object of canvas.getObjects()) {
     if (object.id.includes(`${relation.id}`)) {
       objectsToRemove.push(object);
-      canvas.remove(object);
+      // canvas.remove(object);
     }
   }
 
@@ -768,42 +781,50 @@ const deleteRelation = () => {
 
   const idsToRemove = [];
 
-  $.ajax({
-    method: "GET",
-    url: `../show-all-relations`,
-  }).done((data) => {
-    for (let object of objectsToRemove) {
-      for (let relation of JSON.parse(data)) {
-        if (!new RegExp(`:`).test(object.id)) {
-          if (
-            object.id.split("/")[0] == relation.parent.id &&
-            object.id.split("/")[1] == relation.child.id &&
-            relation.relationship_type == 0
-          ) {
-            idsToRemove.push(relation.id);
-          }
-        } else {
-          if (
-            (object.id.split(":")[0].split("/")[0] == relation.parent.id ||
-              object.id.split(":")[0].split("/")[1] == relation.parent.id) &&
-            object.id.split(":")[1] == relation.child.id &&
-            relation.relationship_type == 1
-          ) {
-            idsToRemove.push(relation.id);
+  if (objectsToRemove.length > 1) {
+    const dialog = document.createElement("dialog");
+    dialog.innerHTML +=
+      "Nie możesz usunąć relacji! Najpierw usuń relacje powiązane z tą relacją (dzieci).";
+    document.body.appendChild(dialog);
+    dialog.showModal();
+  } else {
+    canvas.remove(relation);
+    $.ajax({
+      method: "GET",
+      url: `../show-all-relations`,
+    }).done((data) => {
+      for (let object of objectsToRemove) {
+        for (let relation of JSON.parse(data)) {
+          if (!new RegExp(`:`).test(object.id)) {
+            if (
+              object.id.split("/")[0] == relation.parent.id &&
+              object.id.split("/")[1] == relation.child.id &&
+              relation.relationship_type == 0
+            ) {
+              idsToRemove.push(relation.id);
+            }
+          } else {
+            if (
+              (object.id.split(":")[0].split("/")[0] == relation.parent.id ||
+                object.id.split(":")[0].split("/")[1] == relation.parent.id) &&
+              object.id.split(":")[1] == relation.child.id &&
+              relation.relationship_type == 1
+            ) {
+              idsToRemove.push(relation.id);
+            }
           }
         }
       }
-    }
 
-    for(let id of idsToRemove) {
-      $.ajax({
-        method: "GET",
-        url: `../delete-relation/${id}`,
-      });
-    }
-    console.log(idsToRemove);
-  });
-
+      for (let id of idsToRemove) {
+        $.ajax({
+          method: "GET",
+          url: `../delete-relation/${id}`,
+        });
+      }
+      console.log(idsToRemove);
+    });
+  }
 };
 
 const getObject = (id) => {

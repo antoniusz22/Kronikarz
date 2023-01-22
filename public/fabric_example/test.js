@@ -14,7 +14,8 @@ export class Person {
     spouse,
     childs,
     position_x,
-    position_y
+    position_y,
+    avatar
   ) {
     this.id = id;
     this.first_name = first_name;
@@ -35,6 +36,7 @@ export class Person {
     this.childs = childs;
     this.position_x = position_x;
     this.position_y = position_y;
+    this.avatar = avatar;
   }
 }
 
