@@ -62,6 +62,9 @@ class User
     #[ORM\Column]
     private ?int $position_Y = null;
 
+    #[ORM\Column]
+    private ?string $avatar = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -207,6 +210,18 @@ class User
     public function setPositionY(?int $position_Y): self
     {
         $this->position_Y = $position_Y;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): self
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

@@ -21,6 +21,7 @@ final class Version20221201183446 extends AbstractMigration
             auth_id INT DEFAULT NULL, 
             position_X INT DEFAULT NULL, 
             position_Y INT DEFAULT NULL, 
+            avatar VARCHAR(255) DEFAULT NULL, 
             PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
                 ');
     }

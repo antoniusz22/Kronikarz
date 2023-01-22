@@ -5,6 +5,7 @@ namespace App\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Twig\Environment;
+use App\Service\FileUploader;
 
 class UserController extends AbstractController
 {
@@ -25,7 +27,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/new-user')]
-    public function new(Environment $twig, Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, UserInterface $loggedUser): Response
+    public function new(
+        Environment            $twig, Request $request,
+        EntityManagerInterface $entityManager, SerializerInterface $serializer,
+        UserInterface          $loggedUser, FileUploader $fileUploader
+    ): Response
     {
         $user = new User();
 
@@ -34,7 +40,12 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            /** @var UploadedFile $avatar */
+            $avatarFile = $form->get('avatar')->getData();
+            if ($avatarFile) {
+                $avatarFileName = $fileUploader->upload($avatarFile);
+                $user->setAvatar($avatarFileName);
+            }
             $user->setAuthId($loggedUser->getId());
 
             $entityManager->persist($user);
@@ -80,7 +91,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/edit-user/{id}/', 'edit-user', ['id' => '\d+'])] // todo: secure the @ParamConverter
-    public function edit(Request $request, User $user): Response
+    public function edit(Request $request, User $user, FileUploader $fileUploader): Response
     {
         $response = new Response('', Response::HTTP_OK);
 
@@ -90,6 +101,13 @@ class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
+            /** @var UploadedFile $avatar */
+            $avatarFile = $form->get('avatar')->getData();
+            if ($avatarFile) {
+                $avatarFileName = $fileUploader->upload($avatarFile);
+                $user->setAvatar($avatarFileName);
+            }
+
             if ($form->isValid()) {
                 $em->persist($user);
                 $em->flush();
@@ -128,7 +146,7 @@ class UserController extends AbstractController
         $em = $this->registry->getManager();
         $entity = $em->getRepository(User::class)->findOneBy(['id' => $id]);
 
-        if(!is_null($entity)) {
+        if (!is_null($entity)) {
             $entity->setPositionX($position_X);
             $entity->setPositionY($position_Y);
 
@@ -136,8 +154,7 @@ class UserController extends AbstractController
             $em->flush();
 
             return new Response('', Response::HTTP_OK);
-        }
-        else {
+        } else {
             return new Response('', Response::HTTP_BAD_REQUEST);
         }
     }
