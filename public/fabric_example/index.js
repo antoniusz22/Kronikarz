@@ -548,50 +548,46 @@ const useForm = () => {
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
-      $("form[name='user']").on("submit", (e) => {
+      $(document).on("submit", "form", function (event) {
         const formSerialize = $('form[name="user"]').serialize();
-
-        $.post("../new-user", formSerialize, function (data) {
-          $("form[name='user']").parent().html(data.content);
-          $.ajax({
-            method: "GET",
-            url: `../show-user/${data.user_id}`,
-          }).done((data) => {
-            const personJSON = JSON.parse(data);
-            const person = new Person(
-              personJSON.id,
-              personJSON.first_name,
-              personJSON.last_name,
-              personJSON.birthday,
-              personJSON.death,
-              undefined,
-              personJSON.birthplace,
-              personJSON.country_of_birth,
-              personJSON.sex,
-              personJSON.profession,
-              personJSON.additional_information,
-              undefined,
-              undefined
-              // $("#user_firstName").val(),
-              // $("#user_lastName").val(),
-              // $("#user_birthday").val(),
-              // $("#user_death").val(),
-              // undefined,
-              // $("#user_birthplace").val(),
-              // $("#user_country_of_birth").val(),
-              // $("#user_sex").val(),
-              // $("#user_profession").val(),
-              // $("#user_additional_information").val(),
-              // undefined,
-              // undefined
-            );
-            createPerson(canvas, person, 0);
-            createDialogFromJSON(person.id);
-          });
-        }).fail(function (data) {
-          $("form[name='user']").parent().html(data);
+        $.ajax({
+          url: "../new-user",
+          method: "POST",
+          dataType: "JSON",
+          data: new FormData(this),
+          processData: false,
+          contentType: false,
+          success: function (data) {
+            $.ajax({
+              method: "GET",
+              url: `../show-user/${data.user_id}`,
+            }).done((data) => {
+              const personJSON = JSON.parse(data);
+              const person = new Person(
+                  personJSON.id,
+                  personJSON.first_name,
+                  personJSON.last_name,
+                  personJSON.birthday,
+                  personJSON.death,
+                  undefined,
+                  personJSON.birthplace,
+                  personJSON.country_of_birth,
+                  personJSON.sex,
+                  personJSON.profession,
+                  personJSON.additional_information,
+                  undefined,
+                  undefined
+              );
+              createPerson(canvas, person, 0);
+              createDialogFromJSON(person.id);
+            });
+          },
+          error: function (xhr, desc, err) {
+            $("form[name='user']").parent().html(data);
+          }
         });
-        e.preventDefault();
+
+        event.preventDefault();
         return false;
       });
     });
