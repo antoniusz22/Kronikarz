@@ -152,14 +152,20 @@ const createPerson = (canvas, person, i) => {
     });
     let group = new fabric.Group([rect, img, text], {
       id: `${person.id}`,
-      left: 50 + i * 200,
-      top: 50 + i * 200,
+      left: person.position__x != undefined ? person.position__x : 0,
+      top: person.position__y != undefined ? person.position__y : 0,
       spouse: `${person.spouse}`,
       children: person.childs,
       hasControls: false,
     });
     canvas.add(group);
     canvas.renderAll();
+    group.on("mouseup", () => {
+      $.ajax({
+        method: "GET",
+        url: `../set-position/${group.id}-${group.left}-${group.top}`,
+      });
+    });
     group.on("moving", (opt) => {
       let id = canvas.getActiveObject().id;
       // Linie dzieci
@@ -649,7 +655,7 @@ const createAllRelations = () => {
       });
       console.log("Relacje utworzone");
       resolve();
-    }, 1);
+    }, 400);
   });
 };
 

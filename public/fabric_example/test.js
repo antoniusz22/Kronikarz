@@ -12,7 +12,9 @@ export class Person {
     profession,
     additional_information,
     spouse,
-    childs
+    childs,
+    position_x,
+    position_y
   ) {
     this.id = id;
     this.first_name = first_name;
@@ -31,6 +33,8 @@ export class Person {
     this.additional_information = additional_information;
     this.spouse = spouse;
     this.childs = childs;
+    this.position_x = position_x;
+    this.position_y = position_y;
   }
 }
 
