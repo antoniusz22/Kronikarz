@@ -542,7 +542,7 @@ const deletePerson = () => {
 const downloadUserDate = () => {
   $.ajax({
     method: "GET",
-    url: `../show-all-relations`,
+    url: `../show-all-data`,
   }).done((data) => {
     var link = document.createElement("a");
     link.download = "data.json";
@@ -551,6 +551,22 @@ const downloadUserDate = () => {
     link.click();
   });
 };
+
+const uploadJSONDate = (event) => {
+  var reader = new FileReader();
+  reader.onload = onReaderLoad;
+  reader.readAsText(event.target.files[0]);
+}
+
+function onReaderLoad(event) {
+  $.ajax({
+    method: "POST",
+    url: `../upload-all-data`,
+    data: event.target.result
+  }).done((data) => {
+    alert('Dane załadowane pomyślnie');
+  });
+}
 
 const useForm = () => {
   const modal = document.querySelector("#userForm");
@@ -898,6 +914,9 @@ openRelationModal.addEventListener("click", relationForm);
 
 const downloadJSON = document.querySelector(".downloadJSON-btn");
 downloadJSON.addEventListener("click", downloadUserDate);
+
+const uploadJSON = document.querySelector("#file-selector");
+uploadJSON.addEventListener("change", uploadJSONDate);
 
 // let cancel = true;
 // window.addEventListener("mousemove", () => {

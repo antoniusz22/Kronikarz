@@ -55,7 +55,6 @@ class RelationType extends AbstractType
                 'choices' => [
                     'Małżeństwo' => 0,
                     'Dziecko' => 1,
-                    'Dalsza rodzina' => 2,
                 ],
             ])
             ->add('wedding_date', DateType::class, [
