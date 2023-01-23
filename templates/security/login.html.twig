@@ -18,7 +18,7 @@
     <div class="row">
         <div class="col-4"></div>
         <div class="col-4">
-            <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+            <h1 class="h3 mb-3 font-weight-normal"> {{ 'Please sign in'|trans }}</h1>
         </div>
         <div class="col-4"></div>
     </div>
@@ -26,7 +26,7 @@
     <div class="row">
         <div class="col-4"></div>
         <div class="col-4">
-            <label for="inputUsername">Username</label>
+            <label for="inputUsername"> {{ 'Username'|trans }}</label>
             <input type="text" value="{{ last_username }}" name="username" id="inputUsername" class="form-control" autocomplete="username" required autofocus>
         </div>
         <div class="col-4"></div>
@@ -35,7 +35,7 @@
     <div class="row">
         <div class="col-4"></div>
         <div class="col-4">
-            <label for="inputPassword">Password</label>
+            <label for="inputPassword"> {{ 'Password'|trans }}</label>
             <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
         </div>
         <div class="col-4"></div>
@@ -59,10 +59,10 @@
         <div class="col-4"></div>
         <div class="col-4">
             <button class="btn btn-lg btn-primary" type="submit">
-                Sign in
+                {{ 'Sign in'|trans }}
             </button>
             <a class="btn btn-lg btn-secondary" href="./register">
-                Register
+                {{ 'Registration'|trans }}
             </a>
         </div>
         <div class="col-4"></div>

@@ -21,6 +21,7 @@ class RelationType extends AbstractType
         $builder
             ->add('parent', EntityType::class, [
                 'class' => User::class,
+                'label' => 'relation.parent',
                 'choice_label' => function (User $user) {
                     return $user->getFirstName() . " " . $user->getLastName();
                 },
@@ -37,6 +38,7 @@ class RelationType extends AbstractType
             ])
             ->add('child', EntityType::class, [
                 'class' => User::class,
+                'label' => 'relation.child',
                 'choice_label' => function (User $user) {
                     return $user->getFirstName() . " " . $user->getLastName();
                 },
@@ -52,16 +54,20 @@ class RelationType extends AbstractType
                 },
             ])
             ->add('relationship_type', ChoiceType::class, [
+                'label' => 'relation.relationship_type',
                 'choices' => [
                     'Małżeństwo' => 0,
                     'Dziecko' => 1,
                 ],
             ])
             ->add('wedding_date', DateType::class, [
+                'label' => 'relation.wedding_date',
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('Submit', SubmitType::class);
+            ->add('Submit', SubmitType::class, [
+                'label' => 'submit'
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

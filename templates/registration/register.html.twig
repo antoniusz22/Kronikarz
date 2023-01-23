@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-3"></div>
         <div class="col-6">
-            <h1>Register</h1>
+            <h1> {{ 'Registration'|trans }}</h1>
         </div>
         <div class="col-3"></div>
     </div>
@@ -34,7 +34,9 @@
     <div class="row">
         <div class="col-3"></div>
         <div class="col-6">
-            {{ form_row(registrationForm.agreeTerms) }}
+            {{ form_row(registrationForm.agreeTerms, {
+                label: 'agreeTerms'
+            }) }}
         </div>
         <div class="col-3"></div>
     </div>
@@ -42,9 +44,9 @@
     <div class="row">
         <div class="col-3"></div>
         <div class="col-6">
-            <button type="submit" class="btn btn-lg btn-primary">Register</button>
-            <a class="btn btn-lg btn-secondary" href="./login">
-                Sign in
+            <button type="submit" class="btn btn-lg btn-primary"> {{ 'Register'|trans }}</button>
+            <a class="btn btn-lg btn-secondary" href="./">
+                {{ 'Log In'|trans }}
             </a>
         </div>
         <div class="col-3"></div>

@@ -18,27 +18,42 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('firstName')
-            ->add('lastName')
+            ->add('firstName', null, [
+                'label' => 'user.firstName'
+            ])
+            ->add('lastName', null, [
+                'label' => 'user.lastName'
+            ])
             ->add('birthday', DateType::class, [
                 'widget' => 'single_text',
+                'label' => 'user.birthday'
             ])
             ->add('death', DateType::class, [
                 'widget' => 'single_text',
                 'required' => false,
+                'label' => 'user.death'
             ])
-            ->add('birthplace')
-            ->add('country_of_birth')
+            ->add('birthplace', null, [
+                'label' => 'user.birthplace'
+            ])
+            ->add('country_of_birth', null, [
+                'label' => 'user.country_of_birth'
+            ])
             ->add('sex', ChoiceType::class, [
                 'choices' => [
                     'Mężczyzna' => 0,
                     'Kobieta' => 1
-                ]
+                ],
+                'label' => 'user.sex'
             ])
-            ->add('profession')
-            ->add('additional_information')
+            ->add('profession', null, [
+                'label' => 'user.profession'
+            ])
+            ->add('additional_information', null, [
+                'label' => 'user.additional_information'
+            ])
             ->add('avatar', FileType::class, [
-                'label' => 'Avatar',
+                'label' => 'user.avatar',
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
@@ -52,7 +67,9 @@ class UserType extends AbstractType
                         'mimeTypesMessage' => 'Please upload a valid image',
                     ])
             ]])
-            ->add('Submit', SubmitType::class);
+            ->add('Submit', SubmitType::class, [
+                'label' => 'submit'
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
