@@ -19,7 +19,7 @@ use Twig\Environment;
 class RelationController extends AbstractController
 {
     public function __construct(
-        private readonly ManagerRegistry $registry,
+        private readonly ManagerRegistry     $registry,
         private readonly SerializerInterface $serializer
     )
     {
@@ -34,14 +34,18 @@ class RelationController extends AbstractController
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted()
-            && $form->isValid()
-            && $relation->getParent() !== $relation->getChild()
-        ) {
-            $entityManager->persist($relation);
-            $entityManager->flush();
+        if ($form->isSubmitted()) {
+            if (
+                $form->isValid()
+                && $relation->getParent() !== $relation->getChild()
+            ) {
+                $entityManager->persist($relation);
+                $entityManager->flush();
 
-            return new Response('Relation created');
+                return new Response('Relation created');
+            } else {
+                return new Response('Nie można utworzyć relacji.', Response::HTTP_BAD_REQUEST);
+            }
         }
 
         return new Response($twig->render('relation/index.html.twig', [
@@ -61,14 +65,16 @@ class RelationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
-            if ($form->isValid()) {
+            if ($form->isValid()
+                && $relation->getParent() !== $relation->getChild()
+            ) {
                 $em->persist($relation);
                 $em->flush();
                 return new JsonResponse([
                     'content' => 'Zaktualizowano dane relacji.'
                 ]);
             } else {
-                $response = new Response('', Response::HTTP_BAD_REQUEST);
+                return new Response('Nie można wyedytować relacji.', Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -117,14 +123,14 @@ class RelationController extends AbstractController
         $entities = $queryBuilder
             ->select('r')
             ->where(
-            $queryBuilder->expr()->in(
-                "r.parent",
-                $em->getRepository(User::class)->createQueryBuilder('u')
-                    ->select('u.id')
-                    ->where('u.auth_id = :loggedId')
-                    ->getDQL()
+                $queryBuilder->expr()->in(
+                    "r.parent",
+                    $em->getRepository(User::class)->createQueryBuilder('u')
+                        ->select('u.id')
+                        ->where('u.auth_id = :loggedId')
+                        ->getDQL()
+                )
             )
-        )
             ->setParameter('loggedId', $loggedUser->getId())
             ->getQuery()
             ->getResult();

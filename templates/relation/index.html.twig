@@ -12,10 +12,9 @@
             $("form[name='relation']").on('submit', (e) => {
                 const formSerialize = $('form[name="relation"]').serialize();
                 $.post("..{{ app.request.pathinfo }}", formSerialize, function (data) {
-                    console.log(data);
                     $("form[name='relation']").parent().html(data.content);
                 }).fail(function (data) {
-                    $("form[name='relation']").parent().html(data);
+                    $("form[name='relation']").parent().html(data.responseText);
                 });
                 e.preventDefault();
                 return false;

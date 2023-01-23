@@ -686,7 +686,7 @@ const relationForm = () => {
               $.post("../new-relation", formSerialize, function (data) {
                 $("form[name='relation']").parent().html(data);
               }).fail(function (data) {
-                $("form[name='relation']").parent().html(data);
+                $("form[name='relation']").parent().html(data.responseText);
               });
             } else {
               for (let relation of relations) {
