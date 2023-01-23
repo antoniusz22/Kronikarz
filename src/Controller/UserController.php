@@ -126,11 +126,15 @@ class UserController extends AbstractController
     }
 
     #[Route('/delete-user/{id}', 'delete-user', ['id' => '\d+'])]
-    public function delete(int $id): Response
+    public function delete(int $id, FileUploader $fileUploader): Response
     {
         $em = $this->registry->getManager();
         $entity = $em->getRepository(User::class)->findOneBy(['id' => $id]);
         if (!is_null($entity)) {
+            if ($entity->getAvatar() !== null) {
+                $fileUploader->remove($entity->getAvatar());
+            };
+
             $em->remove($entity);
             $em->flush();
 
