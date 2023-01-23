@@ -150,8 +150,8 @@ const createPerson = (canvas, person, i) => {
       person.avatar != undefined
         ? "../avatars_directory/" + person.avatar
         : person.sex == 0
-        ? "avatarM.png"
-        : "avatarF.png"
+        ? "img/avatarM.png"
+        : "img/avatarF.png"
     }`,
     (oImg) => {
       oImg.scaleToHeight(180);
