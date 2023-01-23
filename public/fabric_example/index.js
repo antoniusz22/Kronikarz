@@ -149,7 +149,9 @@ const createPerson = (canvas, person, i) => {
     `${
       person.avatar != undefined
         ? "../avatars_directory/" + person.avatar
-        : "avatar.png"
+        : person.sex == 0
+        ? "avatarM.png"
+        : "avatarF.png"
     }`,
     (oImg) => {
       oImg.scaleToHeight(180);
@@ -716,11 +718,11 @@ const relationForm = () => {
                   dialog.showModal();
                 } else if (
                   $("#relation_relationship_type").val() == 1 &&
-                  ((relation.parent.id == $("#relation_parent").val() ||
+                  (relation.parent.id == $("#relation_parent").val() ||
                     relation.child.id == $("#relation_child").val() ||
                     relation.parent.id == $("#relation_child").val() ||
                     relation.child.id == $("#relation_parent").val()) &&
-                  relation.relationship_type == 0)
+                  relation.relationship_type == 0
                 ) {
                   const dialog = document.createElement("dialog");
                   dialog.innerHTML +=
