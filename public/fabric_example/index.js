@@ -402,7 +402,7 @@ const createDialogFromJSON = (user_id) => {
   });
 };
 
-const createAllPeople = () => {
+const createAllPeople = async () => {
   return new Promise((resolve) => {
     $.ajax({
       method: "GET",
@@ -556,15 +556,15 @@ const uploadJSONDate = (event) => {
   var reader = new FileReader();
   reader.onload = onReaderLoad;
   reader.readAsText(event.target.files[0]);
-}
+};
 
 function onReaderLoad(event) {
   $.ajax({
     method: "POST",
     url: `../upload-all-data`,
-    data: event.target.result
+    data: event.target.result,
   }).done((data) => {
-    alert('Dane załadowane pomyślnie');
+    alert("Dane załadowane pomyślnie");
   });
 }
 
@@ -642,31 +642,101 @@ const relationForm = () => {
     $(() => {
       $("form[name='relation']").on("submit", (e) => {
         const formSerialize = $('form[name="relation"]').serialize();
-        if ($("#relation_relationship_type").val() == 0) {
-          makeLineBetweenSpouses(
-            getObject($("#relation_parent").val()),
-            getObject($("#relation_child").val())
-          );
-        } else if ($("#relation_relationship_type").val() == 1) {
-          for (let object of canvas.getObjects()) {
-            if (
-              (new RegExp(`${$("#relation_parent").val()}/`).test(object.id) &&
-                !new RegExp(`:`).test(object.id)) ||
-              (new RegExp(`/${$("#relation_parent").val()}`).test(object.id) &&
-                !new RegExp(`:`).test(object.id))
-            ) {
-              makeLineBetweenChildAndParent(
-                object,
-                getObject($("#relation_child").val())
-              );
+
+        let relations = [];
+        $.ajax({
+          method: "GET",
+          url: "../show-all-relations",
+        })
+          .done((data) => {
+            relations = JSON.parse(data);
+          })
+          .done(() => {
+            if ($("#relation_parent").val() == $("#relation_child").val()) {
+              const dialog = document.createElement("dialog");
+              dialog.innerHTML +=
+                "Nie możesz utworzyć relacji między tą samą osobą.";
+              document.body.appendChild(dialog);
+              dialog.showModal();
+            } else if (relations.length == 0) {
+              if ($("#relation_relationship_type").val() == 0) {
+                makeLineBetweenSpouses(
+                  getObject($("#relation_parent").val()),
+                  getObject($("#relation_child").val())
+                );
+              } else if ($("#relation_relationship_type").val() == 1) {
+                for (let object of canvas.getObjects()) {
+                  if (
+                    (new RegExp(`${$("#relation_parent").val()}/`).test(
+                      object.id
+                    ) &&
+                      !new RegExp(`:`).test(object.id)) ||
+                    (new RegExp(`/${$("#relation_parent").val()}`).test(
+                      object.id
+                    ) &&
+                      !new RegExp(`:`).test(object.id))
+                  ) {
+                    makeLineBetweenChildAndParent(
+                      object,
+                      getObject($("#relation_child").val())
+                    );
+                  }
+                }
+              }
+              $.post("../new-relation", formSerialize, function (data) {
+                $("form[name='relation']").parent().html(data);
+              }).fail(function (data) {
+                $("form[name='relation']").parent().html(data);
+              });
+            } else {
+              for (let relation of relations) {
+                if (
+                  (relation.parent.id == $("#relation_parent").val() ||
+                    relation.child.id == $("#relation_child").val() ||
+                    relation.parent.id == $("#relation_child").val() ||
+                    relation.child.id == $("#relation_parent").val()) &&
+                  $("#relation_relationship_type").val() == 0
+                ) {
+                  const dialog = document.createElement("dialog");
+                  dialog.innerHTML +=
+                    "Nie możesz utworzyć relacji. Jedna z osób jest już w związku małżeńskim.";
+                  document.body.appendChild(dialog);
+                  dialog.showModal();
+                } else {
+                  if ($("#relation_relationship_type").val() == 0) {
+                    makeLineBetweenSpouses(
+                      getObject($("#relation_parent").val()),
+                      getObject($("#relation_child").val())
+                    );
+                  } else if ($("#relation_relationship_type").val() == 1) {
+                    for (let object of canvas.getObjects()) {
+                      if (
+                        (new RegExp(`${$("#relation_parent").val()}/`).test(
+                          object.id
+                        ) &&
+                          !new RegExp(`:`).test(object.id)) ||
+                        (new RegExp(`/${$("#relation_parent").val()}`).test(
+                          object.id
+                        ) &&
+                          !new RegExp(`:`).test(object.id))
+                      ) {
+                        makeLineBetweenChildAndParent(
+                          object,
+                          getObject($("#relation_child").val())
+                        );
+                      }
+                    }
+                  }
+                  $.post("../new-relation", formSerialize, function (data) {
+                    $("form[name='relation']").parent().html(data);
+                  }).fail(function (data) {
+                    $("form[name='relation']").parent().html(data);
+                  });
+                }
+              }
             }
-          }
-        }
-        $.post("../new-relation", formSerialize, function (data) {
-          $("form[name='relation']").parent().html(data);
-        }).fail(function (data) {
-          $("form[name='relation']").parent().html(data);
-        });
+          });
+
         e.preventDefault();
         return false;
       });
@@ -675,7 +745,7 @@ const relationForm = () => {
   modal.showModal();
 };
 
-const createAllRelations = () => {
+const createAllRelations = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       $.ajax({
@@ -712,7 +782,7 @@ const createAllRelations = () => {
       });
       console.log("Relacje utworzone");
       resolve();
-    }, 400);
+    }, 1);
   });
 };
 
@@ -765,34 +835,71 @@ const editRelation = (id) => {
         $(() => {
           $("form[name='relation']").on("submit", (e) => {
             const formSerialize = $('form[name="relation"]').serialize();
-            const relation = getObject(id);
-            canvas.remove(relation);
-            if ($("#relation_relationship_type").val() == 0) {
-              makeLineBetweenSpouses(
-                getObject($("#relation_parent").val()),
-                getObject($("#relation_child").val())
-              );
-            } else if ($("#relation_relationship_type").val() == 1) {
-              for (let object of canvas.getObjects()) {
-                if (
-                  (new RegExp(`${$("#relation_parent").val()}/`).test(
-                    object.id
-                  ) &&
-                    !new RegExp(`:`).test(object.id)) ||
-                  (new RegExp(`/${$("#relation_parent").val()}`).test(
-                    object.id
-                  ) &&
-                    !new RegExp(`:`).test(object.id))
-                ) {
-                  makeLineBetweenChildAndParent(
-                    object,
+
+            let relations = [];
+            $.ajax({
+              method: "GET",
+              url: "../show-all-relations",
+            })
+              .done((data) => {
+                relations = JSON.parse(data);
+              })
+              .done(() => {
+                // if ($("#relation_parent").val() == $("#relation_child").val()) {
+                //   const dialog = document.createElement("dialog");
+                //   dialog.innerHTML +=
+                //     "Nie możesz utworzyć relacji między tą samą osobą.";
+                //   document.body.appendChild(dialog);
+                //   dialog.showModal();
+                // } else {
+                //   for (let relation of relations) {
+                //     if (
+                //       (relation.parent.id == $("#relation_parent").val() ||
+                //         relation.child.id == $("#relation_child").val() ||
+                //         relation.parent.id == $("#relation_child").val() ||
+                //         relation.child.id == $("#relation_parent").val()) &&
+                //       $("#relation_relationship_type") == 0
+                //     ) {
+                //       const dialog = document.createElement("dialog");
+                //       dialog.innerHTML +=
+                //         "Nie możesz utworzyć relacji. Jedna z osób jest już w związku małżeńskim.";
+                //       document.body.appendChild(dialog);
+                //       dialog.showModal();
+                //     } else {
+                const relation = getObject(id);
+                canvas.remove(relation);
+                if ($("#relation_relationship_type").val() == 0) {
+                  makeLineBetweenSpouses(
+                    getObject($("#relation_parent").val()),
                     getObject($("#relation_child").val())
                   );
+                } else if ($("#relation_relationship_type").val() == 1) {
+                  for (let object of canvas.getObjects()) {
+                    if (
+                      (new RegExp(`${$("#relation_parent").val()}/`).test(
+                        object.id
+                      ) &&
+                        !new RegExp(`:`).test(object.id)) ||
+                      (new RegExp(`/${$("#relation_parent").val()}`).test(
+                        object.id
+                      ) &&
+                        !new RegExp(`:`).test(object.id))
+                    ) {
+                      makeLineBetweenChildAndParent(
+                        object,
+                        getObject($("#relation_child").val())
+                      );
+                    }
+                  }
                 }
-              }
-            }
+                // }
+                //   }
+                // }
+              });
+
             canvas.renderAll();
             e.preventDefault();
+            return false;
           });
         });
       });
@@ -806,11 +913,8 @@ const deleteRelation = () => {
   for (let object of canvas.getObjects()) {
     if (object.id.includes(`${relation.id}`)) {
       objectsToRemove.push(object);
-      // canvas.remove(object);
     }
   }
-
-  console.log(objectsToRemove);
 
   const idsToRemove = [];
 
@@ -821,7 +925,6 @@ const deleteRelation = () => {
     document.body.appendChild(dialog);
     dialog.showModal();
   } else {
-    canvas.remove(relation);
     $.ajax({
       method: "GET",
       url: `../show-all-relations`,
@@ -855,8 +958,8 @@ const deleteRelation = () => {
           url: `../delete-relation/${id}`,
         });
       }
-      console.log(idsToRemove);
     });
+    canvas.remove(relation);
   }
 };
 
