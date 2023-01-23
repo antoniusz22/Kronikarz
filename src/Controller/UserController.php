@@ -106,6 +106,9 @@ class UserController extends AbstractController
             if ($avatarFile) {
                 $avatarFileName = $fileUploader->upload($avatarFile);
                 $user->setAvatar($avatarFileName);
+//                if ($user->getAvatar() !== null) { // todo: clone user's profile when try to remove old photo
+//                    $fileUploader->remove($user->getAvatar());
+//                };
             }
 
             if ($form->isValid()) {
