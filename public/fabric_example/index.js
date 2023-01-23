@@ -489,8 +489,8 @@ const editPerson = (user_id) => {
     method: "GET",
     url: `../edit-user/${user_id}`,
   }).done((data) => {
-    $("#userForm").html(data);
-    const modal = document.querySelector("#userForm");
+    $("#editUserForm").html(data);
+    const modal = document.querySelector("#editUserForm");
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     modal.showModal();
@@ -572,7 +572,7 @@ function onReaderLoad(event) {
 const useForm = () => {
   const modal = document.querySelector("#userForm");
   $.ajax({
-    method: "POST",
+    method: "GET",
     url: "../new-user",
   }).done((data) => {
     $("#userForm").html(data);
@@ -580,7 +580,7 @@ const useForm = () => {
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
-      $(document).on("submit", "form", function (event) {
+      $("#userForm").on("submit", "form", function (event) {
         if ($('#user_death').val() !== '' && $('#user_death').val() < $('#user_birthday').val()) {
           $("form[name='user']").parent().html("Data śmierci nie może być wcześniejsza od daty narodzin.");
           event.preventDefault();
@@ -629,6 +629,7 @@ const useForm = () => {
         });
 
         event.preventDefault();
+        event.stopImmediatePropagation()
         return false;
       });
     });
@@ -907,7 +908,7 @@ const editRelation = (id) => {
             canvas.renderAll();
             e.preventDefault();
             return false;
-          });
+          }); 
         });
       });
     });
