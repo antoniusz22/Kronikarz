@@ -581,6 +581,11 @@ const useForm = () => {
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
       $(document).on("submit", "form", function (event) {
+        if ($('#user_death').val() !== '' && $('#user_death').val() < $('#user_birthday').val()) {
+          $("form[name='user']").parent().html("Data śmierci nie może być wcześniejsza od daty narodzin.");
+          event.preventDefault();
+          return false;
+        }
         $.ajax({
           url: "../new-user",
           method: "POST",
