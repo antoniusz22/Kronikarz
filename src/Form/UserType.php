@@ -56,6 +56,9 @@ class UserType extends AbstractType
                 'label' => 'user.avatar',
                 'mapped' => false,
                 'required' => false,
+                'attr'   =>  [
+                    'class'   => 'form-control form-control-sm'
+                ],
                 'constraints' => [
                     new File([
                         'maxSize' => '1024k',

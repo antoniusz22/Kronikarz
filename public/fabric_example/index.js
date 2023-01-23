@@ -576,7 +576,6 @@ const useForm = () => {
     url: "../new-user",
   }).done((data) => {
     $("#userForm").html(data);
-    $("#user_avatar").addClass("form-control form-control-sm");
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
