@@ -149,7 +149,7 @@ const createPerson = (canvas, person, i) => {
     `${
       person.avatar != undefined
         ? "../avatars_directory/" + person.avatar
-        : "test.jpg"
+        : "avatar.png"
     }`,
     (oImg) => {
       oImg.scaleToHeight(180);
