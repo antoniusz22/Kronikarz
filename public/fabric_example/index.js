@@ -576,13 +576,18 @@ const useForm = () => {
     url: "../new-user",
   }).done((data) => {
     $("#userForm").html(data);
-    $("#user_avatar").addClass("form-control form-control-sm")
+    $("#user_avatar").addClass("form-control form-control-sm");
     const closeModal = document.querySelector(".closeUserForm-btn");
     closeModal.addEventListener("click", () => modal.close());
     $(() => {
       $("#userForm").on("submit", "form", function (event) {
-        if ($('#user_death').val() !== '' && $('#user_death').val() < $('#user_birthday').val()) {
-          $("form[name='user']").parent().html("Data śmierci nie może być wcześniejsza od daty narodzin.");
+        if (
+          $("#user_death").val() !== "" &&
+          $("#user_death").val() < $("#user_birthday").val()
+        ) {
+          $("form[name='user']")
+            .parent()
+            .html("Data śmierci nie może być wcześniejsza od daty narodzin.");
           event.preventDefault();
           return false;
         }
@@ -629,7 +634,7 @@ const useForm = () => {
         });
 
         event.preventDefault();
-        event.stopImmediatePropagation()
+        event.stopImmediatePropagation();
         return false;
       });
     });
@@ -710,6 +715,19 @@ const relationForm = () => {
                     "Nie możesz utworzyć relacji. Jedna z osób jest już w związku małżeńskim.";
                   document.body.appendChild(dialog);
                   dialog.showModal();
+                } else if (
+                  $("#relation_relationship_type").val() == 1 &&
+                  ((relation.parent.id == $("#relation_parent").val() ||
+                    relation.child.id == $("#relation_child").val() ||
+                    relation.parent.id == $("#relation_child").val() ||
+                    relation.child.id == $("#relation_parent").val()) &&
+                  relation.relationship_type == 0)
+                ) {
+                  const dialog = document.createElement("dialog");
+                  dialog.innerHTML +=
+                    "Nie możesz utworzyć relacji. Małżonek nie może zostać dzieckiem.";
+                  document.body.appendChild(dialog);
+                  dialog.showModal();
                 } else {
                   if ($("#relation_relationship_type").val() == 0) {
                     makeLineBetweenSpouses(
@@ -744,7 +762,6 @@ const relationForm = () => {
               }
             }
           });
-
         e.preventDefault();
         return false;
       });
@@ -908,7 +925,7 @@ const editRelation = (id) => {
             canvas.renderAll();
             e.preventDefault();
             return false;
-          }); 
+          });
         });
       });
     });
@@ -995,9 +1012,9 @@ const createPDF = () => {
     orientation: "landscape",
   });
 
-  doc.addImage(canvas.toDataURL({format: "png",}), "png", 0, 0, 0, 0);
+  doc.addImage(canvas.toDataURL({ format: "png" }), "png", 0, 0, 0, 0);
   doc.save("tree.pdf");
-}
+};
 
 const canvas = initCanvas("canvas");
 
