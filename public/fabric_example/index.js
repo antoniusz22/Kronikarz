@@ -1,4 +1,5 @@
 import { Person, persons } from "./test.js";
+window.jsPDF = window.jspdf.jsPDF;
 
 fabric.LineArrow = fabric.util.createClass(fabric.Line, {
   type: "lineArrow",
@@ -782,7 +783,7 @@ const createAllRelations = async () => {
       });
       console.log("Relacje utworzone");
       resolve();
-    }, 1);
+    }, 200);
   });
 };
 
@@ -969,18 +970,27 @@ const getObject = (id) => {
   }
 };
 
-const saveButton = document.querySelector(".downloadCanvas-btn");
-saveButton.addEventListener(
+const exportPNG = document.querySelector(".exportPNG-btn");
+exportPNG.addEventListener(
   "click",
   function (e) {
     this.href = canvas.toDataURL({
       format: "png",
     });
-    this.download = "canvas.png";
+    this.download = "tree.png";
     // console.log(canvas.toSVG());
   },
   false
 );
+
+const createPDF = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+  });
+
+  doc.addImage(canvas.toDataURL({format: "png",}), "png", 0, 0, 0, 0);
+  doc.save("tree.pdf");
+}
 
 const canvas = initCanvas("canvas");
 
@@ -1017,6 +1027,9 @@ openRelationModal.addEventListener("click", relationForm);
 
 const downloadJSON = document.querySelector(".downloadJSON-btn");
 downloadJSON.addEventListener("click", downloadUserDate);
+
+const exportPDF = document.querySelector(".exportPDF-btn");
+exportPDF.addEventListener("click", createPDF);
 
 const uploadJSON = document.querySelector("#file-selector");
 uploadJSON.addEventListener("change", uploadJSONDate);
