@@ -646,6 +646,7 @@ const useForm = () => {
 
 const relationForm = () => {
   const modal = document.querySelector("#relationForm");
+  modal.innerHTML = "";
   $.ajax({
     method: "POST",
     url: "../new-relation",
@@ -698,6 +699,7 @@ const relationForm = () => {
                 }
               }
               $.post("../new-relation", formSerialize, function (data) {
+                console.log("2");
                 $("form[name='relation']").parent().html(data);
               }).fail(function (data) {
                 $("form[name='relation']").parent().html(data.responseText);
@@ -719,9 +721,9 @@ const relationForm = () => {
                 } else if (
                   $("#relation_relationship_type").val() == 1 &&
                   (relation.parent.id == $("#relation_parent").val() ||
-                    relation.child.id == $("#relation_child").val() ||
-                    relation.parent.id == $("#relation_child").val() ||
                     relation.child.id == $("#relation_parent").val()) &&
+                  (relation.child.id == $("#relation_child").val() ||
+                    relation.parent.id == $("#relation_child").val()) &&
                   relation.relationship_type == 0
                 ) {
                   const dialog = document.createElement("dialog");
@@ -755,7 +757,9 @@ const relationForm = () => {
                     }
                   }
                   $.post("../new-relation", formSerialize, function (data) {
+                    console.log("3");
                     $("form[name='relation']").parent().html(data);
+                    location.reload();
                   }).fail(function (data) {
                     $("form[name='relation']").parent().html(data);
                   });
@@ -763,6 +767,7 @@ const relationForm = () => {
               }
             }
           });
+        e.stopImmediatePropagation();
         e.preventDefault();
         return false;
       });
@@ -808,7 +813,7 @@ const createAllRelations = async () => {
       });
       console.log("Relacje utworzone");
       resolve();
-    }, 200);
+    }, 500);
   });
 };
 
@@ -941,6 +946,8 @@ const deleteRelation = () => {
       objectsToRemove.push(object);
     }
   }
+
+  console.log(objectsToRemove);
 
   const idsToRemove = [];
 
