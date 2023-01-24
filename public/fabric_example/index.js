@@ -646,6 +646,7 @@ const useForm = () => {
 
 const relationForm = () => {
   const modal = document.querySelector("#relationForm");
+  let sendRelation = 0;
   modal.innerHTML = "";
   $.ajax({
     method: "POST",
@@ -667,6 +668,7 @@ const relationForm = () => {
             relations = JSON.parse(data);
           })
           .done(() => {
+            const preventSend = 0;
             if ($("#relation_parent").val() == $("#relation_child").val()) {
               const dialog = document.createElement("dialog");
               dialog.innerHTML +=
@@ -699,7 +701,6 @@ const relationForm = () => {
                 }
               }
               $.post("../new-relation", formSerialize, function (data) {
-                console.log("2");
                 $("form[name='relation']").parent().html(data);
               }).fail(function (data) {
                 $("form[name='relation']").parent().html(data.responseText);
@@ -711,6 +712,7 @@ const relationForm = () => {
                     relation.child.id == $("#relation_child").val() ||
                     relation.parent.id == $("#relation_child").val() ||
                     relation.child.id == $("#relation_parent").val()) &&
+                  relation.relationship_type == 0 &&
                   $("#relation_relationship_type").val() == 0
                 ) {
                   const dialog = document.createElement("dialog");
@@ -732,6 +734,7 @@ const relationForm = () => {
                   document.body.appendChild(dialog);
                   dialog.showModal();
                 } else {
+                  sendRelation = 1;
                   if ($("#relation_relationship_type").val() == 0) {
                     makeLineBetweenSpouses(
                       getObject($("#relation_parent").val()),
@@ -756,14 +759,15 @@ const relationForm = () => {
                       }
                     }
                   }
-                  $.post("../new-relation", formSerialize, function (data) {
-                    console.log("3");
-                    $("form[name='relation']").parent().html(data);
-                    location.reload();
-                  }).fail(function (data) {
-                    $("form[name='relation']").parent().html(data);
-                  });
                 }
+              }
+              console.log(sendRelation);
+              if (sendRelation == 1) {
+                $.post("../new-relation", formSerialize, function (data) {
+                  $("form[name='relation']").parent().html(data);
+                }).fail(function (data) {
+                  $("form[name='relation']").parent().html(data);
+                });
               }
             }
           });
